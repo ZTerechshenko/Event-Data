@@ -12,14 +12,14 @@ library(reshape2)
 
 #### Set working directory ####
 
-setwd("C:/Users/mbs278/Desktop/ICEWS/Uncompressed")
+setwd("C:/Users/mbs278/Desktop/ICEWS/Raw Decompressed/Events")
 
 ############################################################
 
 #### Creating Full ICEWS Dataset ####
 #### 
 # Get filenames of files in directory
-source_files <- list.files(path="C:/Users/mbs278/Desktop/ICEWS/Uncompressed",pattern=".tab") # set file location
+source_files <- list.files(pattern=".tab") # set file location
 
 # Loop to read files
 for (file in source_files){
@@ -55,7 +55,16 @@ for (file in source_files){
 
 # Write CSV as test 
 # Warning: VERY large file, over 4gb
-write.csv(ICEWS_Counts, "ICEWS_all.csv",  row.names=FALSE)
+write.csv(ICEWS_All, "ICEWS_all.csv",  row.names=FALSE)
+
+# Test Read
+ICEWS_All_read <- read.csv("ICEWS_all.csv", stringsAsFactors = FALSE)
+
+# Make sure countries parsed more or less correctly
+ICEWS_Countries <- as.data.frame(sort(table(ICEWS_All$Country),decreasing=TRUE)[1:400])
+head(ICEWS_Countries)
+ICEWS_Countries[1]
+
 
 #### Create Smaller Dataset with Geographic Columns ####
 #### 
@@ -86,18 +95,11 @@ write.csv(ICEWS_count, "ICEWS_count.csv",  row.names=FALSE)
 
 ############################################################
 
-#### Figure out country names ####
-
-# Creates list of most common names
-ICEWS_Countries <- as.data.frame(sort(table(ICEWS_Geo_Select$Country),decreasing=TRUE)[1:400])
-head(ICEWS_Countries)
-ICEWS_Countries[1]
-
 
 #### Read ICEWS test ####
 ####
 
-ICEWS_1995 <- read.delim(file ="events.1995.20150313082510.tab",
+ICEWS_1995 <- read.delim(file ="C:/Users/mbs278/Desktop/ICEWS/Raw Decompressed/Events/events.1995.20150313082510.tab",
                          header = TRUE,
                          encoding = "UTF8",
                          fill = TRUE,
@@ -110,6 +112,11 @@ ICEWS_1995 <- ICEWS_1995 %>% mutate(Event.Date = as.Date(Event.Date) )
 
 
 head(ICEWS_1995)
+
+# Creates list of most common names
+ICEWS_Countries <- as.data.frame(sort(table(ICEWS_1995$Country),decreasing=TRUE)[1:400])
+head(ICEWS_Countries)
+ICEWS_Countries[1]
 
 Names95 <- as.data.frame(sort(table(ICEWS_1995$Country),decreasing=TRUE)[1:400])
 head(Names95)
