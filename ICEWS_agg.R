@@ -1,3 +1,10 @@
+########################################################
+#      Aggregation of ICEWS data to country-month      #
+#                                                      #
+#     Code is taken from Ben Fisher bensfisher.com     #
+########################################################
+
+
 rm(list=ls())
 setwd('')
 library(rPython)
