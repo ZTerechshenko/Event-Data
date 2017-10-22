@@ -1,6 +1,7 @@
-
 #### Script for processing Phoenix event data 
+#### Creates and writes several datasets
 
+#### Should probably loop a lot of this instead of doing it per-dataset
 
 #### load packages ####
 
@@ -10,6 +11,11 @@
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+
+#### Set working directory ####
+
+# Mark's home computer
+setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
 #### Read NYT Phoenix ####
 
@@ -22,8 +28,16 @@ NYT <- NYT %>% mutate(date = as.Date(story_date, format="%m/%d/%Y") )
 
 #str(NYT$date)
 
-# Create NYT Phoenix Geolocated Subset
+#### NYT Geolocated ####
+
+# Create NYT Phoenix Geolocated subset, filter records with a Latitude
 NYT_Geo <- NYT %>% filter(!is.na(lat))
+
+#head(NYT_Geo)
+
+# Write as CSV
+write.csv(NYT_Geo, "Phoenix Processed/NYT_Geolocated.csv", row.names = FALSE)
+
 
 #### NYT Daily Counts ####
 #### 
@@ -34,7 +48,7 @@ NYT_count_all <- count(NYT, story_date)
 # Summarize count by day, just Geo
 NYT_Geo_count <- count(NYT_Geo, story_date)
 
-# Join the Geo count to get both in same tibble
+# Join the Geo count to get both in same table for graphing
 NYT_count <- NYT_count_all %>% 
   full_join(NYT_Geo_count, by = "story_date") %>%
   mutate(story_date = as.Date(story_date, format="%m/%d/%Y") ) %>%
@@ -42,8 +56,27 @@ NYT_count <- NYT_count_all %>%
   rename(geo = n.y) %>%
   mutate(Source = "NYT")
 
-
 head(NYT_count)
+
+#### NYT Per Country and CAMEO root ####
+
+# Create table of count per country
+NYT_Countries_Count <- NYT %>% 
+  count(quad_class, countryname) %>%
+  spread("quad_class", "n") %>%
+  mutate(total = rowSums(.[,2:6], na.rm = TRUE))
+
+# Rename to merge later with other sources
+colnames(NYT_Countries_Count) <- c("Country",
+                                   "NYT.Neutral", 
+                                   "NYT.Verb.Coop", 
+                                   "NYT.Mat.Coop",
+                                   "NYT.Verb.Conf",
+                                   "NYT.Mat.Conf",
+                                   "NYT.Total") 
+
+
+head(NYT_Countries_Count)
 
 #### Read SWB Phoenix ####
 
@@ -54,8 +87,15 @@ SWB <- read.csv(file ="Phoenix/PhoenixSWB_1979-2015.csv")
 # Convert to proper date format
 SWB <- SWB %>% mutate(date = as.Date(story_date, format="%m/%d/%Y") )
 
-# Create SWB Phoenix Geolocated Subset
+#### SWB Geolocated Subset ####
+
+# filter records with a Latitude
 SWB_Geo <- SWB %>% filter(!is.na(lat))
+
+head(SWB_Geo)
+
+# Write as CSV
+write.csv(SWB_Geo, "Phoenix Processed/SWB_Geolocated.csv", row.names = FALSE)
 
 #### SWB Daily Counts ####
 #### 
@@ -77,6 +117,25 @@ SWB_count <- SWB_count_all %>%
 #remove used datasets
 head(SWB_count)
 
+#### SWB Per Country and CAMEO root ####
+
+# Create table of count per country
+SWB_Countries_Count <- SWB %>% 
+  count(quad_class, countryname) %>%
+  spread("quad_class", "n") %>%
+  mutate(total = rowSums(.[,2:6], na.rm = TRUE))
+
+# Rename to merge later with other sources
+colnames(SWB_Countries_Count) <- c("Country",
+                                   "SWB.Neutral", 
+                                   "SWB.Verb.Coop", 
+                                   "SWB.Mat.Coop",
+                                   "SWB.Verb.Conf",
+                                   "SWB.Mat.Conf",
+                                   "SWB.Total") 
+
+head(SWB_Countries_Count)
+
 #### Read FBIS Phoenix ####
 
 FBIS <- read.csv(file ="Phoenix/PhoenixFBIS_1995-2004.csv")
@@ -86,8 +145,15 @@ FBIS <- read.csv(file ="Phoenix/PhoenixFBIS_1995-2004.csv")
 # Convert to proper date format
 FBIS <- FBIS %>% mutate(date = as.Date(story_date, format="%m/%d/%Y") )
 
-# Create FBIS Phoenix Geolocated Subset
+#### FBIS Phoenix Geolocated Subset ####
+
+# Filter by presence of latitude
 FBIS_Geo <- FBIS %>% filter(!is.na(lat))
+
+head(FBIS_Geo)
+
+# Write as CSV
+write.csv(FBIS_Geo, "Phoenix Processed/FBIS_Geolocated.csv", row.names = FALSE)
 
 #### FBIS Daily Counts ####
 #### 
@@ -109,7 +175,27 @@ FBIS_count <- FBIS_count_all %>%
 
 head(FBIS_count) 
 
-#### Join For Long Dataset ####
+#### FBIS Per Country and CAMEO root ####
+
+# Create table of count per country
+FBIS_Countries_Count <- FBIS %>% 
+  count(quad_class, countryname) %>%
+  spread("quad_class", "n") %>%
+  mutate(total = rowSums(.[,2:6], na.rm = TRUE))
+
+# Rename to merge later with other sources
+colnames(FBIS_Countries_Count) <- c("Country",
+                                   "FBIS.Neutral", 
+                                   "FBIS.Verb.Coop", 
+                                   "FBIS.Mat.Coop",
+                                   "FBIS.Verb.Conf",
+                                   "FBIS.Mat.Conf",
+                                   "FBIS.Total") 
+
+
+head(FBIS_Countries_Count)
+
+#### Counts Total Long Format####
 
 #Join all counts in long format
 Phoenix_Count_Long <- FBIS_count %>%
@@ -125,12 +211,12 @@ Phoenix_Count_Long <- FBIS_count %>%
 head(Phoenix_Count_Long)
 
 # Long Dataset Write CSV for graphing later
-write.csv(Phoenix_Count_Long, "Phoenix_Count_Long.csv",  row.names=FALSE)
+write.csv(Phoenix_Count_Long, "Phoenix Processed/Phoenix_Count_Long.csv",  row.names=FALSE)
 
 # Test read
-#Phoenix_Count_Long_read <- read.csv("Phoenix_Count_Long.csv")
+#Phoenix_Count_Long_read <- read.csv(Phoenix Processed/"Phoenix_Count_Long.csv")
 
-#### Joint for Wide dataset ####
+#### Counts Total Wide Format####
 
 #Join all counts in wide format
 Phoenix_Count_Wide <- NYT_count %>%
@@ -156,7 +242,23 @@ Phoenix_Count_Wide<- Phoenix_Count_Wide %>%
 head(Phoenix_Count_Wide)
 
 # Long Dataset Write CSV for graphing later
-write.csv(Phoenix_Count_Wide, "Phoenix_Count_Wide.csv",  row.names=FALSE)
+write.csv(Phoenix_Count_Wide, "Phoenix Processed/Phoenix_Count_Wide.csv",  row.names=FALSE)
 
 # Test read
-Phoenix_Count_Wide_read <- read.csv("Phoenix_Count_Wide.csv")
+#Phoenix_Count_Wide_read <- read.csv("Phoenix Processed/Phoenix_Count_Wide.csv")
+
+#### All Per Country and CAMEO ####
+
+# Check count datasets
+head(NYT_Countries_Count)
+head(SWB_Countries_Count)
+head(FBIS_Countries_Count)
+
+# Full joint all subsets
+Phoenix_Count_Cameo <- NYT_Countries_Count %>%
+  full_join(SWB_Countries_Count) %>%
+  full_join(FBIS_Countries_Count)
+
+head(Phoenix_Count_Cameo)
+
+write.csv(Phoenix_Count_Cameo, "Phoenix Processed/Phoenix_Country_Cameo.csv", row.names =  FALSE)

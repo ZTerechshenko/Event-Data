@@ -1,6 +1,11 @@
 
 #### Script for processing Phoenix event data and creating summary graphics
 
+#### Set working directory ####
+
+# Mark's home computer
+setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
+
 #### load packages ####
 
 #install.packages("ggplot2")
@@ -12,7 +17,7 @@ library(tidyr)
 
 #### Read NYT Phoenix ####
 
-Phoenix_Long <- read.csv(file ="Phoenix_Count_Long.csv")
+Phoenix_Long <- read.csv(file ="Phoenix Processed/Phoenix_Count_Long.csv")
 
 # Convert to proper date format
 Phoenix_Long <- Phoenix_Long %>% mutate(story_date = as.Date(story_date) )
@@ -24,7 +29,7 @@ head(Phoenix_Long)
 #### NYT count, time series ####
 #### 
 title <- "Phoenix_NYT_Events"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
 # line chart
 ggplot(Phoenix_Long[Phoenix_Long$Source == "NYT",], aes(x = story_date, y = all)) +
   geom_line(alpha = .5, color = "blue") +
@@ -44,7 +49,7 @@ dev.off()
 ###################
 
 title <- "Phoenix_NYT_Events_Bar_Chart"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
 # Bar chart
 ggplot(Phoenix_Long[Phoenix_Long$Source == "NYT",],  aes(x = story_date, y = all)) +
   geom_bar(stat = "identity",
@@ -67,7 +72,7 @@ dev.off()
 ###################
 
 title <- "Phoenix_NYT_Events_Histogram"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
 
 # Histogram showing missing dates
 ggplot(Phoenix_Long[Phoenix_Long$Source == "NYT",],  aes(x = story_date)) +
@@ -89,7 +94,7 @@ dev.off()
 ###################
 
 title <- "Phoenix_NYT_Events_1961_Missing_Dates"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
 
 #### NYT 1961 anomaly ####
 ggplot(Phoenix_Long[Phoenix_Long$Source == "NYT",],  aes(x = story_date, y = all)) +
@@ -126,7 +131,7 @@ dev.off()
 ###################
 
 title <- "Phoenix_NYT_Events_1978_Missing_Dates"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
 
 #### NYT 1978 anomaly ####
 ggplot(Phoenix_Long[Phoenix_Long$Source == "NYT",],  aes(x = story_date, y = all)) +
@@ -162,7 +167,7 @@ dev.off()
 ###################
 
 title <- "Phoenix_NYT_Events_Random_Area"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
 
 #### NYT Zoom in on random sample ####
 ggplot(Phoenix_Long[Phoenix_Long$Source == "NYT",],  aes(x = story_date, y = all)) +
@@ -188,7 +193,7 @@ dev.off()
 #### 
  
 title <- "Histogram of Events per Day"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
 
 # Events per day histogram
 ggplot(Phoenix_Long, aes(color = Source)) +
@@ -208,7 +213,7 @@ dev.off()
 # Bar chart
 # 
 title <- "Event Coverage by Source"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
  
 ggplot(Phoenix_Long,  aes(x = story_date, y = all, fill = Source)) +
   geom_bar(stat = "identity",
@@ -230,7 +235,7 @@ dev.off()
 
 
 title <- "Events Per Day Per Source"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
 
 # Line chart
 ggplot(Phoenix_Long,  aes(x = story_date, y = all, color = Source)) +
@@ -251,7 +256,7 @@ dev.off()
 
 
 title <- "Events Per Day Per Source Area Version"
-png(paste0(title, ".png"), width =  1600, height = 1000, res = 120 )
+png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
 
 # Line chart
 ggplot(Phoenix_Long,  aes(x = story_date, y = all, fill = Source)) +
