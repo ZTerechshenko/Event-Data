@@ -40,29 +40,37 @@ slotNames(world)
 # Check data fields
 head(world@data)
 
-#### Merge with Phoenix Cameo Counts ####
+#### Read Phoenix Data ####
 
 # Ready the Phoenix cameo counts by type + country dataset
 Phoenix_Counts <- read.csv("Phoenix Processed/Phoenix_Country_Cameo.csv")
 
-head(Phoenix_Counts)
+#### Merge with Phoenix Cameo Counts, Write Shapefile ####
+
+# head(Phoenix_Counts)
 
 # Join table to shapefile by country three-letter codes
-world_cameo_counts <- merge(world, Phoenix_Counts, by.x="ISO3", by.y="Country")
+world_cameo_counts <- merge(world, Phoenix_Counts, by.x = "ISO3", by.y = "Country")
 
 class(world_cameo_counts)
 
 # Check merge successful 
 head(world_cameo_counts@data)
 
-# Add ID for ggplot
+# Write shapefile for ArcMap
+writeOGR(world_cameo_counts, "Phoenix Processed/world_cameo_counts", "world_cameo_counts", driver = "ESRI Shapefile")
+
+#### Reformat Data for ggplot ####
+
+# Add ID for fortify to work below
 world_cameo_counts@data$id <- rownames(world_cameo_counts@data)
 
+# Use fortify to convert into different geometry for ggplot2
 world_fort <- fortify(world_cameo_counts, region = "id")
 
 head(world_fort)
 
-# Merge back data
+# Merge back data lost in fortify
 world_cc <- merge(world_fort, world_cameo_counts@data, by = "id")
 
 head(world_cc)
