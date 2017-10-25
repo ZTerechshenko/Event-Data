@@ -1,12 +1,17 @@
 
 #### Script for mapping Phoenix event data
+#### # by Mark Simpson
 
 #### Set working directory ####
 
 # Mark's home computer
-setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
+#setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
-#### load packages ####
+# Mark's office computer
+setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
+
+
+#### Load packages ####
 
 #install.packages("ggplot2")
 #install.packages("dplyr")
@@ -15,13 +20,13 @@ setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 #install.packages("rgdal")
 #install.packages("maps")
 
-
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(GISTools)
 library(rgdal)
 library(maps)
+
 
 #### Read World Shapefile ####
 
@@ -40,10 +45,13 @@ slotNames(world)
 # Check data fields
 head(world@data)
 
+
 #### Read Phoenix Data ####
 
 # Ready the Phoenix cameo counts by type + country dataset
 Phoenix_Counts <- read.csv("Phoenix Processed/Phoenix_Country_Cameo.csv")
+
+
 
 #### Merge with Phoenix Cameo Counts, Write Shapefile ####
 
@@ -60,6 +68,8 @@ head(world_cameo_counts@data)
 # Write shapefile for ArcMap
 writeOGR(world_cameo_counts, "Phoenix Processed/world_cameo_counts", "world_cameo_counts", driver = "ESRI Shapefile")
 
+
+
 #### Reformat Data for ggplot ####
 
 # Add ID for fortify to work below
@@ -74,6 +84,8 @@ head(world_fort)
 world_cc <- merge(world_fort, world_cameo_counts@data, by = "id")
 
 head(world_cc)
+
+
 
 #### Mapping test ####
 

@@ -12,10 +12,16 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
+
+
+
 #### Set working directory ####
 
 # Mark's home computer
 setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
+
+
+
 
 #### Read NYT Phoenix ####
 
@@ -39,6 +45,7 @@ NYT_Geo <- NYT %>% filter(!is.na(lat))
 write.csv(NYT_Geo, "Phoenix Processed/NYT_Geolocated.csv", row.names = FALSE)
 
 
+
 #### NYT Daily Counts ####
 #### 
 
@@ -57,6 +64,8 @@ NYT_count <- NYT_count_all %>%
   mutate(Source = "NYT")
 
 head(NYT_count)
+
+
 
 #### NYT Per Country and CAMEO root ####
 
@@ -78,6 +87,9 @@ colnames(NYT_Countries_Count) <- c("Country",
 
 head(NYT_Countries_Count)
 
+
+
+
 #### Read SWB Phoenix ####
 
 SWB <- read.csv(file ="Phoenix/PhoenixSWB_1979-2015.csv")
@@ -96,6 +108,9 @@ head(SWB_Geo)
 
 # Write as CSV
 write.csv(SWB_Geo, "Phoenix Processed/SWB_Geolocated.csv", row.names = FALSE)
+
+
+
 
 #### SWB Daily Counts ####
 #### 
@@ -117,6 +132,9 @@ SWB_count <- SWB_count_all %>%
 #remove used datasets
 head(SWB_count)
 
+
+
+
 #### SWB Per Country and CAMEO root ####
 
 # Create table of count per country
@@ -136,6 +154,8 @@ colnames(SWB_Countries_Count) <- c("Country",
 
 head(SWB_Countries_Count)
 
+
+
 #### Read FBIS Phoenix ####
 
 FBIS <- read.csv(file ="Phoenix/PhoenixFBIS_1995-2004.csv")
@@ -154,6 +174,8 @@ head(FBIS_Geo)
 
 # Write as CSV
 write.csv(FBIS_Geo, "Phoenix Processed/FBIS_Geolocated.csv", row.names = FALSE)
+
+
 
 #### FBIS Daily Counts ####
 #### 
@@ -175,6 +197,8 @@ FBIS_count <- FBIS_count_all %>%
 
 head(FBIS_count) 
 
+
+
 #### FBIS Per Country and CAMEO root ####
 
 # Create table of count per country
@@ -194,6 +218,8 @@ colnames(FBIS_Countries_Count) <- c("Country",
 
 
 head(FBIS_Countries_Count)
+
+
 
 #### Counts Total Long Format####
 
@@ -215,6 +241,8 @@ write.csv(Phoenix_Count_Long, "Phoenix Processed/Phoenix_Count_Long.csv",  row.n
 
 # Test read
 #Phoenix_Count_Long_read <- read.csv(Phoenix Processed/"Phoenix_Count_Long.csv")
+
+
 
 #### Counts Total Wide Format####
 
