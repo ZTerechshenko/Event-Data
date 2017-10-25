@@ -47,8 +47,7 @@ ggplot(NYT_Geo, aes(x = lon, y= lat)) +
 
 # Get list of countries, ISO3 code
 Countries <- as.character(unique(NYT_Geo$countryname))
-
-country <- Countries[3]
+country <- Countries[2]
 
 longName <- countrycode(country, "iso3c", "country.name")
 
