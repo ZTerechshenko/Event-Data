@@ -1,153 +1,69 @@
-#### ICEWS Processing ####
-#### 
-#### load packages ####
+rm(list=ls())
 
-#install.packages("ggplot2")
-#install.packages("dplyr")
-#install.packages("tidyr")
-library(ggplot2)
+library(here)
+library(rPython)                                                                  library(reshape2)
 library(dplyr)
-library(tidyr)
-library(reshape2)
+library(countrycode)
+python.load('text_to_CAMEO.py')
+files = list.files(pattern='reduced.ICEWS.events.*.txt')
+icews.data = do.call('rbind', lapply(files, function(x) read.table(x, header=FALSE,
+                                                                   sep='\t')))                             
+# international crisis #
+#create dataset, which includes year and month
+df1 = icews.data %>%
+  filter(V4=='GOV' | V4=='MIL') %>% #actors are only government and military
+  filter(V7=='GOV' | V7=='MIL') %>%
+  filter(V2 != V5) %>% # exclude within-country observations
+  filter(V2 != "---") %>%
+  filter(V5 != "---") %>%
+  filter(V3 != 0 & V6 != 0) %>% 
+  filter(V3 != 997 & V6 != 997) %>% 
+  mutate(country = V3) %>% #cown
+  mutate(year = substr(V1, 1, 4)) %>% # create year variable
+  mutate(month = substr(V1, 6, 7)) %>% # month variable
+  mutate(vcp = ifelse(V10==1, 1, 0)) %>% # verbal cooperation
+  mutate(mcp = ifelse(V10==2, 1, 0)) %>% # material cooperation
+  mutate(vcf = ifelse(V10==3, 1, 0)) %>% # verbal conflict
+  mutate(mcf = ifelse(V10==4, 1, 0)) %>% # material conflict
+  select(country, year, month, V2, V3, V5, V6, V8, vcp, mcp, vcf, mcf)
 
-#### Set working directory ####
+df2 = df1%>%
+  mutate(country = V6)
 
-setwd("C:/Users/mbs278/Desktop/ICEWS/Raw Decompressed/Events")
+df = rbind(df1, df2)
 
-############################################################
+new_df = df %>%
+  select(country, year, month, vcp, mcp, vcf, mcf) %>%
+  melt(id.vars = c('country','year', 'month')) %>%
+  dcast(country+year+month~variable, fun.aggregate=sum) 
 
-#### Creating Full ICEWS Dataset ####
-#### 
-# Get filenames of files in directory
-source_files <- list.files(pattern=".tab") # set file location
+names(new_df)<-c('country', 'year', 'month','vcp', 'mcp', 'vcf', 'mcf')                                
 
-# Loop to read files
-for (file in source_files){
-     
-     # if the merged dataset doesn't exist, create it
-     if (!exists("ICEWS_All")){
-          ICEWS_All <- read.delim(file = file, 
-                                  header = TRUE,
-                                  encoding = "UTF8",
-                                  fill = TRUE,
-                                  quote="",
-                                  stringsAsFactors = FALSE)
-     }
-     
-     # if the merged dataset does exist, append to it
-     if (exists("ICEWS_All")){
-          temp_dataset <- read.delim(file = file,
-                                     header = TRUE,
-                                     encoding = "UTF8",
-                                     fill = TRUE,
-                                     quote="",
-                                     stringsAsFactors = FALSE)
-          
-          ICEWS_All <- ICEWS_All %>% 
-               bind_rows(temp_dataset)
-          
-          rm(temp_dataset)
-     }
-     
-}
-
-#head(ICEWS_All)
-
-# Write CSV as test 
-# Warning: VERY large file, over 4gb
-write.csv(ICEWS_All, "ICEWS_all.csv",  row.names=FALSE)
-
-# Test Read
-ICEWS_All_read <- read.csv("ICEWS_all.csv", stringsAsFactors = FALSE)
-
-# Make sure countries parsed more or less correctly
-ICEWS_Countries <- as.data.frame(sort(table(ICEWS_All$Country),decreasing=TRUE)[1:400])
-head(ICEWS_Countries)
-ICEWS_Countries[1]
+write.csv(new_df, "icw_international.csv")
 
 
-#### Create Smaller Dataset with Geographic Columns ####
-#### 
-ICEWS_Geo_Select <- ICEWS_All %>%
-     select(Event.ID, 
-            Event.Date, 
-            Source.Country, 
-            CAMEO.Code, 
-            Target.Country, 
-            City, District, 
-            Province, 
-            Country, 
-            Latitude, 
-            Longitude) %>%
-     mutate( Event.Date = as.Date(Event.Date) )
 
-# Write CSV 
-write.csv(ICEWS_Geo_Select, "ICEWS_Geo_Select.csv",  row.names=FALSE)
+df3 = icews.data %>%
+  filter(V4=='GOV' | V4=='MIL' | V4=="REB") %>% #actors are only government and military
+  filter(V7=='GOV' | V7=='MIL' | V7=="REB") %>%
+  filter(V4 != V7) %>%
+  filter(V2 == V5) %>%  # within-country observations
+  mutate(year = substr(V1, 1, 4)) %>% # create year variable
+  mutate(month = substr(V1, 6, 7)) %>% # month variable
+  mutate(vcp = ifelse(V10==1, 1, 0)) %>% # verbal cooperation
+  mutate(mcp = ifelse(V10==2, 1, 0)) %>% # material cooperation
+  mutate(vcf = ifelse(V10==3, 1, 0)) %>% # verbal conflict
+  mutate(mcf = ifelse(V10==4, 1, 0)) %>% # material conflict
+  mutate(country = V3) %>%
+  select(country, year, month, vcp, mcp, vcf, mcf)
 
-# Walker 107 Computer
-# setwd("C:/Users/mbs278/Desktop/ICEWS/Uncompressed")
-#ICEWS_Geo_Select <- read.csv("ICEWS_Geo_Select.csv", stringsAsFactors = FALSE)
+new_df3 = df3 %>%
+  melt(id.vars = c('country','year', 'month')) %>%
+  dcast(country+year+month~variable, fun.aggregate=sum) 
 
-#### Create Counts by Day Dataset ####
-ICEWS_count <- count(ICEWS_Geo_Select, Event.Date)
-
-write.csv(ICEWS_count, "ICEWS_count.csv",  row.names=FALSE)
-
-############################################################
+write.csv(new_df3, "icw_domestic.csv")
 
 
-#### Read ICEWS test ####
-####
-
-ICEWS_1995 <- read.delim(file ="C:/Users/mbs278/Desktop/ICEWS/Raw Decompressed/Events/events.1995.20150313082510.tab",
-                         header = TRUE,
-                         encoding = "UTF8",
-                         fill = TRUE,
-                         quote="",
-                         stringsAsFactors = FALSE)
+  
 
 
-# Convert to proper date format
-ICEWS_1995 <- ICEWS_1995 %>% mutate(Event.Date = as.Date(Event.Date) )
-
-
-head(ICEWS_1995)
-
-# Creates list of most common names
-ICEWS_Countries <- as.data.frame(sort(table(ICEWS_1995$Country),decreasing=TRUE)[1:400])
-head(ICEWS_Countries)
-ICEWS_Countries[1]
-
-Names95 <- as.data.frame(sort(table(ICEWS_1995$Country),decreasing=TRUE)[1:400])
-head(Names95)
-
-tail(Names95)
-Sys.getlocale()
-
-#### Graphing Test #####
-max(ICEWS_count$n)
-
-ggplot(ICEWS_count,  aes(x = Event.Date, y = n)) +
-     geom_bar(stat = "identity",
-              position = "fill",
-              alpha = .6) 
-
-ggplot(ICEWS_count,  aes(x = Event.Date, y = n)) +
-     geom_line() +
-     geom_smooth( color = "red", alpha = .2)
-
-ggplot(ICEWS_count,  aes(x = Event.Date, y = n)) +
-     geom_area() +
-     geom_smooth( color = "red", alpha = .2)
-
-
-# + 
-#      scale_x_date(breaks = seq( as.Date("1945-01-01"), 
-#                                 as.Date("2014-12-31"), 
-#                                 by = "5 years"),
-#                   date_minor_breaks = "1 year",
-#                   date_labels = "%Y") +
-#      labs( title = title, 
-#            x = "Date") +
-#      theme( title = element_text(size = 14, face = "bold"),
-#             axis.text = element_text(size = 12) )
