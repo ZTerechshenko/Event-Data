@@ -7,23 +7,23 @@
 #setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
 # Mark's office computer
-# setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
+ setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
 
 # Mark's laptop
-setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
+#setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
 
 #### Load packages ####
 
-install.packages("ggplot2")
-install.packages("dplyr")
-install.packages("tidyr")
-#
-install.packages("GISTools")
-install.packages("rgdal")
-install.packages("maps")
-
-install.packages("ggmap")
-install.packages("countrycode")
+# install.packages("ggplot2")
+# install.packages("dplyr")
+# install.packages("tidyr")
+# 
+# install.packages("GISTools")
+# install.packages("rgdal")
+# install.packages("maps")
+# 
+# install.packages("ggmap")
+# install.packages("countrycode")
 
 library(ggplot2)
 library(dplyr)
@@ -40,9 +40,9 @@ library(countrycode)
 #### 
 
 #read from file
-NYT.geo <- read.csv(file ="Phoenix Processed/NYT_Geolocated.csv")
+NYT.geo <- read.csv(file ="Phoenix Processed/NYT_Geolocated.csv", fill = TRUE)
 
-head(NYT.geo)
+hea(NYT.geo)
 
 # Simple plot
 #ggplot(NYT.geo, aes(x = lon, y= lat)) +
@@ -59,28 +59,49 @@ NYT.geo$cameo.root[NYT.geo$quad_class == 4] <- "Material conflict"
 
 #NYT.geo$cameo.root
 
-# Get list of countries, ISO3 code
-countries <- as.character(unique(NYT.geo$countryname))
+#  Get list of countries, ISO3 code
+countries <- as.character(unique(NYT.geo$countryname)) 
+
+# Trial-and-error separation of countries who break the looping
+# Using the second loop, which uses the long name, works for these
+bad.countries <- c( "SGP", "VAT", "CUW", "NRU", "MDV", "MAC", "SMR", 
+                    "GIB", "FLK", "TCA", "DJI", "AND", "ABW", "LCA", "MCO", 
+                    "GGY", "ASM", "SYC", "SXM", "CCK", "VCT", "WLF")
+
+# These are countries for which the second loop does not work
+very.bad.countries <- c("USA", "RUS", "FIN", "ATA", "ASM", "TUV", "TON" ,"ATF" ,"SGS" ,"REU" ,"SJM")
+
+#countrycode("ATA", "iso3c", "country.name")
+
+# filter out countries that break in the loop
+countries <- countries[countries != bad.countries]
 
 # Manually set colors for event types, called in ggmap later
-cols <- c("Neutral" = "gray50", 
+cols <- c("Neutral" = "gray70", 
           "Verbal cooperation" = "dodgerblue",
           "Material cooperation"  = "blue", 
-          "Verbal conflict" = "lightsalmon", 
+          "Verbal conflict" = "salmon", 
           "Material conflict" = "red")
 
 # Manually set shapes for event types, called in ggmap later
 shaps <- c("Neutral" = 15, 
-           "Verbal cooperation" = 16,
-           "Material cooperation"  = 19, 
-           "Verbal conflict" = 17, 
-           "Material conflict" = 17)
+           "Verbal cooperation" = 1,
+           "Material cooperation"  = 1, 
+           "Verbal conflict" = 2, 
+           "Material conflict" = 2)
+
+# Manually set sizes for event types, called in ggmap later
+sizs <- c("Neutral" = 2, 
+           "Verbal cooperation" = 2,
+           "Material cooperation"  = 3, 
+           "Verbal conflict" = 1.25, 
+           "Material conflict" = 2.75)
 
 title.dataset <- "NYT "
 
-#### Loop mapping events in each country ####
-
-for (i in 1:5){
+#### Loop mapping events in each GOOD country ####
+# starting at 2 skips the USA, which breaks stuff
+for (i in 231:length(countries)){
     
     # Assign by index, will loop later
     country <- countries[i]
@@ -88,59 +109,383 @@ for (i in 1:5){
     # get full name using countrycode package
     long.name <- countrycode(country, "iso3c", "country.name")
     
+    # Print current country for debugging
+    cat(as.character(i), country, long.name)
+    
     # subset dataset by country name
     c.subset <- NYT.geo %>% filter(countryname == country)
     
-    # Expand limits of plot
-    scale.expand <- 1
+    # Get bounding box
+    bbox <- make_bbox(lon, lat, c.subset, f = .5)
     
-    # Set location (top left, top right) for map to pass to get_map
-    location <- c(min(c.subset$lon) - scale.expand, 
-                  min(c.subset$lat) - scale.expand, 
-                  max(c.subset$lon) + scale.expand, 
-                  max(c.subset$lat) + scale.expand)
+    # Get map for bounding box
+    map <- get_map(bbox, color = "bw")
     
-    # get google map from ggmap
-    map <- get_map(location = location, color = "bw")
+    #####
+
+    # Plots for all points
+    sub <- "All Events" 
+
+    all.map.print <- ggmap(map, darken = c(0.4, "white")) + geom_point(data = c.subset, 
+                                                                   aes(  x = lon,
+                                                                         y = lat,
+                                                                         color = "Events____________"), 
+                                                                   alpha = .2, 
+                                                                   size = 1.5) + 
+         scale_color_manual(name = "All Events", values = c(Events____________ = "blue") )+
+         labs( title = paste0(title.dataset, long.name),
+               subtitle = sub) 
     
-    # creat a base plot with the map 
-    map.base <- ggmap(map)
-    
-    # Add points to basemap, other ggplot things
-    #   uses cols and shaps defined before loop
-    map.print <- map.base + geom_point(data = c.subset, 
-                          aes(  x = lon,
-                                y = lat, 
-                                color = cameo.root, 
-                                shape = cameo.root), 
-                          alpha = .8, 
-                          size = 2.5) + 
-        scale_colour_manual(values = cols) + 
-        scale_shape_manual(values = shaps) +
-        labs( title = paste0(title.dataset, long.name) ) 
     
     # Open PNG device, set resolution
-    png(paste0("Plots/Maps/", title.dataset, long.name, ".png"), 
+    png(paste0("Plots/Maps/", title.dataset, long.name, sub, ".png"), 
         width =  1200, 
         height = 1000, 
         res = 120)
     
     # must wrap in print function for looping w/ggplot
-    print(map.print)
+    print(all.map.print)
+    
+    # close device
+    dev.off()
+    
+    #####
+    
+    sub <- "Events by Type"
+    # Plots events by type
+    type.map.print <- ggmap(map, darken = c(0.7, "white")) + geom_point(data = c.subset, 
+                          aes(  x = lon,
+                                y = lat, 
+                                color = cameo.root, 
+                                shape = cameo.root,
+                                size = cameo.root), 
+                          alpha = .8) + 
+        scale_size_manual(values = sizs) +
+        scale_colour_manual(values = cols) +
+        scale_shape_manual(values = shaps) +
+        labs( title = paste0(title.dataset, long.name),
+              subtitle = sub) 
+    
+
+    
+    # Open PNG device, set resolution
+    png(paste0("Plots/Maps/", title.dataset, long.name, sub, ".png"), 
+        width =  1200, 
+        height = 1000, 
+        res = 120)
+    
+    # must wrap in print function for looping w/ggplot
+    print(type.map.print)
     
     # close device
     dev.off()
 
 }
 
+#### Loop mapping events in each BAD country ####
+# starting at 2 skips the USA, which breaks stuff
+for (i in 1:length(bad.countries)){
+     
+     # Assign by index, will loop later
+     country <- bad.countries[i]
+     
+     # get full name using countrycode package
+     long.name <- countrycode(country, "iso3c", "country.name")
+     
+     # Print current country for debugging
+     cat(as.character(i), country, long.name)
+     
+     # subset dataset by country name
+     c.subset <- NYT.geo %>% filter(countryname == country)
+     
 
-#######
+     
+     # Get map for bounding box
+     map <- get_map(long.name, color = "bw")
+     
+     #####
+     
+     # Plots for all points
+     sub <- "All Events" 
+     
+     all.map.print <- ggmap(map, darken = c(0.4, "white")) + geom_point(data = c.subset, 
+                                                                        aes(  x = lon,
+                                                                              y = lat,
+                                                                              color = "Events____________"), 
+                                                                        alpha = .2, 
+                                                                        size = 1.5) + 
+          scale_color_manual(name = "All Events", values = c(Events____________ = "blue") )+
+          labs( title = paste0(title.dataset, long.name),
+                subtitle = sub) 
+     
+     
+     # Open PNG device, set resolution
+     png(paste0("Plots/Maps/", title.dataset, long.name, sub, ".png"), 
+         width =  1200, 
+         height = 1000, 
+         res = 120)
+     
+     # must wrap in print function for looping w/ggplot
+     print(all.map.print)
+     
+     # close device
+     dev.off()
+     
+     #####
+     
+     sub <- "Events by Type"
+     # Plots events by type
+     type.map.print <- ggmap(map, darken = c(0.7, "white")) + geom_point(data = c.subset, 
+                                                                         aes(  x = lon,
+                                                                               y = lat, 
+                                                                               color = cameo.root, 
+                                                                               shape = cameo.root,
+                                                                               size = cameo.root), 
+                                                                         alpha = .8) + 
+          scale_size_manual(values = sizs) +
+          scale_colour_manual(values = cols) +
+          scale_shape_manual(values = shaps) +
+          labs( title = paste0(title.dataset, long.name),
+                subtitle = sub) 
+     
+     
+     
+     # Open PNG device, set resolution
+     png(paste0("Plots/Maps/", title.dataset, long.name, sub, ".png"), 
+         width =  1200, 
+         height = 1000, 
+         res = 120)
+     
+     # must wrap in print function for looping w/ggplot
+     print(type.map.print)
+     
+     # close device
+     dev.off()
+     
+}
 
 
-ggplot(data = c.subset, aes(x = lon, y= lat) ) +
-     geom_polygon(data = world_fort, aes(x = long, y = lat, group = group)) +
-     geom_point( aes( color = as.character(quad_class) ) ) 
 
 
-ggplot( ) +
-     geom_polygon()
+#### Plotting for Countries for which the loop did not work ####
+
+#### USA ####
+# Assign by index, will loop later
+country <- "USA"
+
+# get full name using countrycode package
+long.name <- countrycode(country, "iso3c", "country.name")
+
+# subset dataset by country name
+c.subset <- NYT.geo %>% filter(countryname == country)
+
+
+# Get map for bounding box
+map <- get_map(location = c(-120, 45), zoom = 3, color = "bw")
+
+#####
+
+# Plots for all points
+sub <- "All Events" 
+
+all.map.print <- ggmap(map, darken = c(0.4, "white")) + geom_point(data = c.subset, 
+                                                                   aes(  x = lon,
+                                                                         y = lat,
+                                                                         color = "Events____________"), 
+                                                                   alpha = .2, 
+                                                                   size = 1.5) + 
+     scale_color_manual(name = "All Events", values = c(Events____________ = "blue") )+
+     labs( title = paste0(title.dataset, long.name),
+           subtitle = sub) 
+
+
+# Open PNG device, set resolution
+png(paste0("Plots/Maps/", title.dataset, long.name, sub, ".png"), 
+    width =  1200, 
+    height = 1000, 
+    res = 120)
+
+# must wrap in print function for looping w/ggplot
+print(all.map.print)
+
+# close device
+dev.off()
+
+#####
+
+sub <- "Events by Type"
+# Plots events by type
+type.map.print <- ggmap(map, darken = c(0.7, "white")) + geom_point(data = c.subset, 
+                                                                    aes(  x = lon,
+                                                                          y = lat, 
+                                                                          color = cameo.root, 
+                                                                          shape = cameo.root,
+                                                                          size = cameo.root), 
+                                                                    alpha = .8) + 
+     scale_size_manual(values = sizs) +
+     scale_colour_manual(values = cols) +
+     scale_shape_manual(values = shaps) +
+     labs( title = paste0(title.dataset, long.name),
+           subtitle = sub) 
+
+# Open PNG device, set resolution
+png(paste0("Plots/Maps/", title.dataset, long.name, sub, ".png"), 
+    width =  1200, 
+    height = 1000, 
+    res = 120)
+
+# must wrap in print function for looping w/ggplot
+print(type.map.print)
+
+# close device
+dev.off()
+
+
+
+#############################
+
+#### RUS West####
+
+# Assign by index, will loop later
+country <- "RUS"
+
+# get full name using countrycode package
+long.name <- countrycode(country, "iso3c", "country.name")
+
+# subset dataset by country name
+c.subset <- NYT.geo %>% filter(countryname == country)
+
+# Get map for bounding box
+map <- get_map(location = c(60, 55), zoom = 3, color = "bw")
+ggmap(map)
+#####
+
+# Plots for all points
+sub <- "All Events" 
+
+all.map.print <- ggmap(map, darken = c(0.4, "white")) + geom_point(data = c.subset, 
+                                                                   aes(  x = lon,
+                                                                         y = lat,
+                                                                         color = "Events____________"), 
+                                                                   alpha = .2, 
+                                                                   size = 1.5) + 
+     scale_color_manual(name = "All Events", values = c(Events____________ = "blue") )+
+     labs( title = paste0(title.dataset, long.name, " West"),
+           subtitle = sub) 
+
+
+# Open PNG device, set resolution
+png(paste0("Plots/Maps/", title.dataset, long.name, "_West", sub, ".png"),  
+    width =  1200, 
+    height = 1000, 
+    res = 120)
+
+# must wrap in print function for looping w/ggplot
+print(all.map.print)
+
+# close device
+dev.off()
+
+#####
+
+sub <- "Events by Type"
+# Plots events by type
+type.map.print <- ggmap(map, darken = c(0.7, "white")) + geom_point(data = c.subset, 
+                                                                    aes(  x = lon,
+                                                                          y = lat, 
+                                                                          color = cameo.root, 
+                                                                          shape = cameo.root,
+                                                                          size = cameo.root), 
+                                                                    alpha = .8) + 
+     scale_size_manual(values = sizs) +
+     scale_colour_manual(values = cols) +
+     scale_shape_manual(values = shaps) +
+     labs( title = paste0(title.dataset, long.name, " West"),
+           subtitle = sub) 
+
+# Open PNG device, set resolution
+png(paste0("Plots/Maps/", title.dataset, long.name, "_West", sub, ".png"), 
+    width =  1200, 
+    height = 1000, 
+    res = 120)
+
+# must wrap in print function for looping w/ggplot
+print(type.map.print)
+
+# close device
+dev.off()
+
+#############################
+
+
+#### RUS East ####
+
+# Assign by index, will loop later
+country <- "RUS"
+
+# get full name using countrycode package
+long.name <- countrycode(country, "iso3c", "country.name")
+
+# subset dataset by country name
+c.subset <- NYT.geo %>% filter(countryname == country)
+
+# Get map for bounding box
+map <- get_map(location = c(140, 55), zoom = 3, color = "bw")
+ggmap(map)
+
+#####
+
+# Plots for all points
+sub <- "All Events" 
+
+all.map.print <- ggmap(map, darken = c(0.4, "white")) + geom_point(data = c.subset, 
+                                                                   aes(  x = lon,
+                                                                         y = lat,
+                                                                         color = "Events____________"), 
+                                                                   alpha = .2, 
+                                                                   size = 1.5) + 
+     scale_color_manual(name = "All Events", values = c(Events____________ = "blue") )+
+     labs( title = paste0(title.dataset, long.name, " East"),
+           subtitle = sub) 
+
+
+# Open PNG device, set resolution
+png(paste0("Plots/Maps/", title.dataset, long.name, "_East", sub, ".png"),  
+    width =  1200, 
+    height = 1000, 
+    res = 120)
+
+# must wrap in print function for looping w/ggplot
+print(all.map.print)
+
+# close device
+dev.off()
+
+#####
+
+sub <- "Events by Type"
+# Plots events by type
+type.map.print <- ggmap(map, darken = c(0.7, "white")) + geom_point(data = c.subset, 
+                                                                    aes(  x = lon,
+                                                                          y = lat, 
+                                                                          color = cameo.root, 
+                                                                          shape = cameo.root,
+                                                                          size = cameo.root), 
+                                                                    alpha = .8) + 
+     scale_size_manual(values = sizs) +
+     scale_colour_manual(values = cols) +
+     scale_shape_manual(values = shaps) +
+     labs( title = paste0(title.dataset, long.name, "East"),
+           subtitle = sub) 
+
+# Open PNG device, set resolution
+png(paste0("Plots/Maps/", title.dataset, long.name, "_East", sub, ".png"), 
+    width =  1200, 
+    height = 1000, 
+    res = 120)
+
+# must wrap in print function for looping w/ggplot
+print(type.map.print)
+
+# close device
+dev.off()
