@@ -10,6 +10,9 @@
 # Mark's office computer
 setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
 
+# Mark's laptop
+# setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/Event-Data")
+
 
 #### Load packages ####
 
