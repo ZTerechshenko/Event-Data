@@ -4,13 +4,13 @@
 #### Set working directory ####
 
 # Mark's home computer
-#setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
+
 
 # Mark's office computer
- setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
+setwd("C:/Users/mbs278/Desktop/ICEWS/")
 
 # Mark's laptop
-#setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
+
 
 #### Load packages ####
 
@@ -40,27 +40,27 @@ library(countrycode)
 #### 
 
 #read from file
-SWB.geo <- read.csv(file ="Phoenix Processed/SWB_Geolocated.csv", fill = TRUE)
+events <- read.csv(file ="Processed Data/ICEWS_Geo_Select.csv", fill = TRUE)
 
-head(SWB.geo)
+head(events)
 
 # Simple plot
-#ggplot(SWB.geo, aes(x = lon, y= lat)) +
+#ggplot(events, aes(x = lon, y= lat)) +
 #     geom_point()
 
 #### SWB Setting up for mapping loop ####
 
 # Create new field and populate according to cameo code
-SWB.geo$cameo.root[SWB.geo$quad_class == 0] <- "Neutral" 
-SWB.geo$cameo.root[SWB.geo$quad_class == 1] <- "Verbal cooperation" 
-SWB.geo$cameo.root[SWB.geo$quad_class == 2] <- "Material cooperation" 
-SWB.geo$cameo.root[SWB.geo$quad_class == 3] <- "Verbal conflict" 
-SWB.geo$cameo.root[SWB.geo$quad_class == 4] <- "Material conflict" 
+events$cameo.root[events$quad_class == 0] <- "Neutral" 
+events$cameo.root[events$quad_class == 1] <- "Verbal cooperation" 
+events$cameo.root[events$quad_class == 2] <- "Material cooperation" 
+events$cameo.root[events$quad_class == 3] <- "Verbal conflict" 
+events$cameo.root[events$quad_class == 4] <- "Material conflict" 
 
-#SWB.geo$cameo.root
+#events$cameo.root
 
 #  Get list of countries, ISO3 code
-countries <- as.character(unique(SWB.geo$countryname)) 
+countries <- as.character(unique(events$countryname)) 
 
 # Trial-and-error separation of countries who break the looping
 # Using the second loop, which uses the long name, works for these
@@ -68,9 +68,7 @@ bad.countries <- c( "SGP", "VAT", "CUW", "NRU", "MDV", "MAC", "SMR",
                     "GIB", "FLK", "TCA", "DJI", "AND", "ABW", "LCA", "MCO", 
                     "GGY", "ASM", "SYC", "SXM", "CCK", "VCT", "WLF", "TCA", 
                     "BLZ", "COK", "CYM", "FSM", "GLP", "GRD", "IOT", "JEY", 
-                    "KNA", "NIU", "SHN", "STP", "TKL", "VGB", "BMU", "AIA",
-                    "MAF", "CXR", "BES", "VIR
-                    ")
+                    "KNA", "NIU", "SHN", "STP", "TKL", "VGB")
 
 # These are countries for which the second loop does not work
 very.bad.countries <- c("USA", "RUS", "FIN", "ATA", "ASM", "TUV", "TON",
@@ -120,7 +118,7 @@ for (i in 1:length(countries)){
     cat(as.character(i), country, long.name)
     
     # subset dataset by country name
-    c.subset <- SWB.geo %>% filter(countryname == country)
+    c.subset <- events %>% filter(countryname == country)
     
     # Get bounding box
     bbox <- make_bbox(lon, lat, c.subset, f = .5)
@@ -203,7 +201,7 @@ for (i in 1:length(bad.countries)){
      cat(as.character(i), country, long.name)
      
      # subset dataset by country name
-     c.subset <- SWB.geo %>% filter(countryname == country)
+     c.subset <- events %>% filter(countryname == country)
      
 
      
@@ -284,7 +282,7 @@ country <- "USA"
 long.name <- countrycode(country, "iso3c", "country.name")
 
 # subset dataset by country name
-c.subset <- SWB.geo %>% filter(countryname == country)
+c.subset <- events %>% filter(countryname == country)
 
 
 # Get map for bounding box
@@ -360,7 +358,7 @@ country <- "RUS"
 long.name <- countrycode(country, "iso3c", "country.name")
 
 # subset dataset by country name
-c.subset <- SWB.geo %>% filter(countryname == country)
+c.subset <- events %>% filter(countryname == country)
 
 # Get map for bounding box
 map <- get_map(location = c(60, 55), zoom = 3, color = "bw")
@@ -434,7 +432,7 @@ country <- "RUS"
 long.name <- countrycode(country, "iso3c", "country.name")
 
 # subset dataset by country name
-c.subset <- SWB.geo %>% filter(countryname == country)
+c.subset <- events %>% filter(countryname == country)
 
 # Get map for bounding box
 map <- get_map(location = c(140, 55), zoom = 3, color = "bw")
