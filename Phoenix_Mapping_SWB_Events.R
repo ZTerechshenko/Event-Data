@@ -215,12 +215,13 @@ for (i in 1:length(bad.countries)){
      # Plots for all points
      sub <- "All Events" 
      
-     all.map.print <- ggmap(map, darken = c(0.4, "white")) + geom_point(data = c.subset, 
-                                                                        aes(  x = lon,
-                                                                              y = lat,
-                                                                              color = "Events____________"), 
-                                                                        alpha = .2, 
-                                                                        size = 1.5) + 
+     all.map.print <- ggmap(map, darken = c(0.4, "white")) + 
+       geom_point(data = c.subset, 
+                  aes(  x = lon,
+                        y = lat,
+                        color = "Events____________"), 
+                  alpha = .2, 
+                  size = 1.5) + 
           scale_color_manual(name = "All Events", values = c(Events____________ = "blue") )+
           labs( title = paste0(title.dataset, long.name),
                 subtitle = sub) 
@@ -242,13 +243,14 @@ for (i in 1:length(bad.countries)){
      
      sub <- "Events by Type"
      # Plots events by type
-     type.map.print <- ggmap(map, darken = c(0.7, "white")) + geom_point(data = c.subset, 
-                                                                         aes(  x = lon,
-                                                                               y = lat, 
-                                                                               color = cameo.root, 
-                                                                               shape = cameo.root,
-                                                                               size = cameo.root), 
-                                                                         alpha = .8) + 
+     type.map.print <- ggmap(map, darken = c(0.7, "white")) + 
+       geom_point(data = c.subset, 
+                   aes(  x = lon,
+                         y = lat, 
+                         color = cameo.root, 
+                         shape = cameo.root,
+                         size = cameo.root), 
+                   alpha = .8) + 
           scale_size_manual(values = sizs) +
           scale_colour_manual(values = cols) +
           scale_shape_manual(values = shaps) +
