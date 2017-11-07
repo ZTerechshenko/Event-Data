@@ -26,7 +26,8 @@ for (file in source_files){
      
      # if the merged dataset doesn't exist, create it
      if (!exists("ICEWS_All")){
-          ICEWS_All <- read.delim(file = file, 
+          ICEWS_All <- read.delim(file = file,
+                                  colClasses = c("CAMEO.Code" = "character"),
                                   header = TRUE,
                                   encoding = "UTF8",
                                   fill = TRUE,
@@ -37,6 +38,7 @@ for (file in source_files){
      # if the merged dataset does exist, append to it
      if (exists("ICEWS_All")){
           temp_dataset <- read.delim(file = file,
+                                     colClasses = c("CAMEO.Code" = "character"),
                                      header = TRUE,
                                      encoding = "UTF8",
                                      fill = TRUE,
@@ -51,12 +53,70 @@ for (file in source_files){
      
 }
 
-#head(ICEWS_All)
+head(ICEWS_All)
 
-# Write CSV as test 
+#### Parsing CAMEO into 20 classes ####
+
+# Create new variable to do processing on
+CAMEO.Twenty <- ICEWS_All$CAMEO.Code
+
+sort(unique(CAMEO.Twenty))
+
+# Remove last character from codes 4 chars in length
+CAMEO.Twenty[nchar(CAMEO.Twenty) == 4] <- 
+     substr(CAMEO.Twenty[nchar(CAMEO.Twenty) == 4], 1, 3)
+
+# Check results
+sort(unique(CAMEO.Twenty))
+
+# Remove last character from all codes
+CAMEO.Twenty <- substr(CAMEO.Twenty, 1, 2)
+
+# Check results
+sort(unique(CAMEO.Twenty))
+
+
+length(CAMEO.Twenty)
+
+# Add back into ICEWS data frame as new field, matches Phoenix
+ICEWS_All$root_code <- CAMEO.Twenty
+
+# Check results
+head(ICEWS_All)
+
+
+#### Parsing CAMEO into quad classes ####
+
+#Create Copy to be overwritten
+CAMEO.quad <- CAMEO.Twenty
+
+# Copy as numeric for processing
+CAMEO.temp <- as.numeric(CAMEO.Twenty)
+
+# Quad class code mappings are here
+# browseURL("https://s3.amazonaws.com/oeda/docs/phoenix_codebook.pdf")
+
+# Assign Cameo root according to 2-digit code
+CAMEO.quad[] <- "Material conflict" 
+CAMEO.quad[CAMEO.temp == 16] <- "Verbal conflict" 
+CAMEO.quad[CAMEO.temp < 14] <- "Verbal conflict" 
+CAMEO.quad[CAMEO.temp < 9 ] <- "Material cooperation"
+CAMEO.quad[CAMEO.temp < 6 ] <- "Verbal cooperation" 
+CAMEO.quad[CAMEO.temp < 3] <- "Neutral" 
+
+# Add back into ICEWS data frame as new field
+ICEWS_All$quad_class <- CAMEO.quad
+
+# Check results
+head(ICEWS_All)
+
+#### Write ICEWS_All CSV  ####
+#### 
 # Warning: VERY large file, over 4gb
 write.csv(ICEWS_All, "ICEWS_all.csv",  row.names=FALSE)
 
+
+#### Read ICEWS_All test ####
 # Test Read
 ICEWS_All_read <- read.csv("ICEWS_all.csv", stringsAsFactors = FALSE)
 
@@ -78,11 +138,16 @@ ICEWS_Geo_Select <- ICEWS_All %>%
             Province, 
             Country, 
             Latitude, 
-            Longitude) %>%
+            Longitude,
+            root_code,
+            quad_class) %>%
      mutate( Event.Date = as.Date(Event.Date) )
+
+head(ICEWS_GEO_Select)
 
 # Write CSV 
 write.csv(ICEWS_Geo_Select, "ICEWS_Geo_Select.csv",  row.names=FALSE)
+
 
 # Walker 107 Computer
 # setwd("C:/Users/mbs278/Desktop/ICEWS/Uncompressed")
@@ -100,6 +165,7 @@ write.csv(ICEWS_count, "ICEWS_count.csv",  row.names=FALSE)
 ####
 
 ICEWS_1995 <- read.delim(file ="C:/Users/mbs278/Desktop/ICEWS/Raw Decompressed/Events/events.1995.20150313082510.tab",
+                         colClasses = c("CAMEO.Code" = "character"),
                          header = TRUE,
                          encoding = "UTF8",
                          fill = TRUE,
@@ -110,7 +176,7 @@ ICEWS_1995 <- read.delim(file ="C:/Users/mbs278/Desktop/ICEWS/Raw Decompressed/E
 # Convert to proper date format
 ICEWS_1995 <- ICEWS_1995 %>% mutate(Event.Date = as.Date(Event.Date) )
 
-
+str(ICEWS_1995$CAMEO.Code)
 head(ICEWS_1995)
 
 # Creates list of most common names
