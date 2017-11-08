@@ -29,15 +29,36 @@ library(tidyr)
 library(GISTools)
 library(rgdal)
 library(maps)
+library(tools) # for file_path_sans_ext
 
 
-#### Read World Shapefile ####
+#### Grab shapfile from online ####
 
-# Read in data, note path and layer name has no extension
-world <- readOGR(dsn = "./Spatial Data/TM_WORLD_BORDERS_SIMPL-0.3", layer = "TM_WORLD_BORDERS_SIMPL-0.3")
+## Puts zip into temporary directory
+url <- "http://thematicmapping.org/downloads/TM_WORLD_BORDERS-0.3.zip" #stores URL
+
+# Gets the filename from a path
+file <- basename(url)
+
+# Downloads the file
+download.file(url,file) 
+
+# Creates a temp directory to store files
+tmpdir <- tempdir()
+
+# Unzips the file to that directory
+unzip(file, exdir = tmpdir)
+
+# Get name of shapefile, assign it
+shpname <- file_path_sans_ext((list.files(tmpdir, pattern=".shp"))) 
+
+#reads the shapefile, puts it into 'world' variable
+world <- readOGR(tmpdir, layer=shpname) 
 
 # default plotting to check
-plot(world)
+ggplot() +
+  geom_polygon(data = world, aes(x = long, y = lat, group = group) ) +
+  coord_map()
 
 # Check class
 class(world)
@@ -52,16 +73,13 @@ head(world@data)
 #### Read Phoenix Data ####
 
 # Ready the Phoenix cameo counts by type + country dataset
-Phoenix_Counts <- read.csv("Phoenix Processed/Phoenix_Country_Cameo.csv")
+NYT_c <- read.csv("Processed/Country Year Event Counts/NYT_country_counts.csv")
 
 
-
-#### Merge with Phoenix Cameo Counts, Write Shapefile ####
-
-# head(Phoenix_Counts)
+#### Merge with NYT_c ####
 
 # Join table to shapefile by country three-letter codes
-world_cameo_counts <- merge(world, Phoenix_Counts, by.x = "ISO3", by.y = "Country")
+world_cameo_counts <- merge(world, NYT_c, by.x = "ISO3", by.y = "X")
 
 class(world_cameo_counts)
 
@@ -69,7 +87,7 @@ class(world_cameo_counts)
 head(world_cameo_counts@data)
 
 # Write shapefile for ArcMap
-writeOGR(world_cameo_counts, "Phoenix Processed/world_cameo_counts", "world_cameo_counts", driver = "ESRI Shapefile")
+writeOGR(world_cameo_counts, "Processed/NYT_country_counts", "NYT_country_counts", driver = "ESRI Shapefile")
 
 
 
@@ -81,20 +99,20 @@ world_cameo_counts@data$id <- rownames(world_cameo_counts@data)
 # Use fortify to convert into different geometry for ggplot2
 world_fort <- fortify(world_cameo_counts, region = "id")
 
-head(world_fort)
-
 # Merge back data lost in fortify
 world_cc <- merge(world_fort, world_cameo_counts@data, by = "id")
 
 head(world_cc)
 
-
-
 #### Mapping test ####
 
 # NYT events
-ggplot(world_cc, aes(x = long, y = lat, group = group, fill = NYT.Total) ) + 
-  geom_polygon()
+ggplot(world_cc, aes(x = long, 
+                     y = lat, 
+                     group = group, 
+                     fill = y2004.4 )) + 
+  geom_polygon() +
+  coord_map("rectangular", 0)
 
 # SWB events
 ggplot(world_cc, aes(x = long, y = lat, group = group, fill = SWB.Total) )+ 

@@ -5,10 +5,12 @@
 #install.packages("ggplot2")
 #install.packages("dplyr")
 #install.packages("tidyr")
+#install.packages("countrycode")
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(reshape2)
+library(countrycode)
 
 #### Set working directory ####
 
@@ -16,10 +18,11 @@ setwd("C:/Users/mbs278/Desktop/ICEWS/Raw Decompressed/Events")
 
 ############################################################
 
+
 #### Creating Full ICEWS Dataset ####
 #### 
 # Get filenames of files in directory
-source_files <- list.files(pattern=".tab") # set file location
+source_files <- list.files( pattern=".tab") # set file location
 
 # Loop to read files
 for (file in source_files){
@@ -110,15 +113,30 @@ ICEWS_All$quad_class <- CAMEO.quad
 # Check results
 head(ICEWS_All)
 
+#### Parse Country Codes ####
+
+# Correct specific countries for countrycode parsing
+ICEWS_All[ICEWS_All$Country == "Curaçao",]$Country <- "Curacao"
+ICEWS_All[ICEWS_All$Country == "Micronesia",]$Country <- "Federated States of Micronesia"
+ICEWS_All[ICEWS_All$Country == "Bonaire",]$Country <- "Bonaire, Sint Eustatius and Saba"
+
+# WTF "Bavaria"?
+ICEWS_All[ICEWS_All$Country == "Bavaria",]$Country <- "Germany"
+
+# Create new field with three-letter country code
+ICEWS_All <- ICEWS_All %>%
+  mutate(countryname = countrycode(Country, "country.name", "iso3c"))
+
 #### Write ICEWS_All CSV  ####
 #### 
 # Warning: VERY large file, over 4gb
-write.csv(ICEWS_All, "ICEWS_all.csv",  row.names=FALSE)
+write.csv(ICEWS_All, "C:/Users/mbs278/Desktop/ICEWS/Processed Data/ICEWS_All.csv",  row.names=FALSE)
 
 
+##########################################################
 #### Read ICEWS_All test ####
 # Test Read
-ICEWS_All_read <- read.csv("ICEWS_all.csv", stringsAsFactors = FALSE)
+ICEWS_All <- read.csv("C:/Users/mbs278/Desktop/ICEWS/Processed Data/ICEWS_All.csv", stringsAsFactors = FALSE)
 
 # Make sure countries parsed more or less correctly
 ICEWS_Countries <- as.data.frame(sort(table(ICEWS_All$Country),decreasing=TRUE)[1:400])
@@ -140,13 +158,14 @@ ICEWS_Geo_Select <- ICEWS_All %>%
             Latitude, 
             Longitude,
             root_code,
-            quad_class) %>%
+            quad_class,
+            countryname) %>%
      mutate( Event.Date = as.Date(Event.Date) )
 
 head(ICEWS_GEO_Select)
 
 # Write CSV 
-write.csv(ICEWS_Geo_Select, "ICEWS_Geo_Select.csv",  row.names=FALSE)
+write.csv(ICEWS_Geo_Select, "C:/Users/mbs278/Desktop/ICEWS/Processed Data/ICEWS_Geo_Select.csv",  row.names=FALSE)
 
 
 # Walker 107 Computer
@@ -178,6 +197,17 @@ ICEWS_1995 <- ICEWS_1995 %>% mutate(Event.Date = as.Date(Event.Date) )
 
 str(ICEWS_1995$CAMEO.Code)
 head(ICEWS_1995)
+
+
+# Correct specific countries for countrycode parsing
+ICEWS_1995[ICEWS_1995$Country == "Curaçao",]$Country <- "Curacao"
+ICEWS_1995[ICEWS_1995$Country == "Micronesia",]$Country <- "Federated States of Micronesia"
+
+ICEWS_1995 <- ICEWS_1995 %>%
+  mutate(iso3c = countrycode(Country, "country.name", "iso3c"))
+
+
+sort(unique(ICEWS_1995$Country))
 
 # Creates list of most common names
 ICEWS_Countries <- as.data.frame(sort(table(ICEWS_1995$Country),decreasing=TRUE)[1:400])
