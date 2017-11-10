@@ -8,10 +8,10 @@
 #setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
 # Mark's office computer
-setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
+#setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
 
 # Mark's laptop
-# setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/Event-Data")
+setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
 
 
 #### Load packages ####
@@ -19,9 +19,11 @@ setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
 #install.packages("ggplot2")
 #install.packages("dplyr")
 #install.packages("tidyr")
-#install.packages("GISTools")
+install.packages("GISTools", dependencies = TRUE)
 #install.packages("rgdal")
 #install.packages("maps")
+install.packages("spdep")
+
 
 library(ggplot2)
 library(dplyr)
@@ -30,7 +32,7 @@ library(GISTools)
 library(rgdal)
 library(maps)
 library(tools) # for file_path_sans_ext
-
+library(spdep)
 
 #### Grab shapfile from online ####
 
@@ -126,5 +128,22 @@ ggplot(world_cc, aes(x = long, y = lat, group = group, fill = FBIS.Total) )+
 ggplot(world.md, aes(map_id = region)) +
   geom_map(aes(fill = NYT.Total),map = world.md)
 
+
+
+
+
+#### Spatial Stats Test ####
+install.packages("GISTools")
+
+
+
+
+n.list <- nb2listw(poly2nb(world_cameo_counts), style = "B", zero.policy = TRUE)
+class(n.list)
+
+test <- world_cameo_counts@data$y2004.1
+test[is.na(test)] <- 0
+
+localmoran(test, n.list, zero.policy = TRUE)
 
 
