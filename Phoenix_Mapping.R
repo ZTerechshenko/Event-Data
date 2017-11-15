@@ -8,10 +8,10 @@
 #setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
 # Mark's office computer
-#setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
+setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
 
 # Mark's laptop
-setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
+#setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
 
 
 #### Load packages ####
@@ -19,10 +19,10 @@ setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
 #install.packages("ggplot2")
 #install.packages("dplyr")
 #install.packages("tidyr")
-install.packages("GISTools", dependencies = TRUE)
+#nstall.packages("GISTools")
 #install.packages("rgdal")
 #install.packages("maps")
-install.packages("spdep")
+#install.packages("spdep")
 
 
 library(ggplot2)
@@ -36,26 +36,30 @@ library(spdep)
 
 #### Grab shapfile from online ####
 
-## Puts zip into temporary directory
-url <- "http://thematicmapping.org/downloads/TM_WORLD_BORDERS-0.3.zip" #stores URL
+# ## Puts zip into temporary directory
+# url <- "http://thematicmapping.org/downloads/TM_WORLD_BORDERS-0.3.zip" #stores URL
+# 
+# # Gets the filename from a path
+# file <- basename(url)
+# 
+# # Downloads the file
+# download.file(url,file) 
+# 
+# # Creates a temp directory to store files
+# tmpdir <- tempdir()
+# 
+# # Unzips the file to that directory
+# unzip(file, exdir = tmpdir)
+# 
+# # Get name of shapefile, assign it
+# shpname <- file_path_sans_ext((list.files(tmpdir, pattern=".shp"))) 
+# #reads the shapefile, puts it into 'world' variable
+# world <- readOGR(tmpdir, layer=shpname) 
 
-# Gets the filename from a path
-file <- basename(url)
-
-# Downloads the file
-download.file(url,file) 
-
-# Creates a temp directory to store files
-tmpdir <- tempdir()
-
-# Unzips the file to that directory
-unzip(file, exdir = tmpdir)
-
-# Get name of shapefile, assign it
-shpname <- file_path_sans_ext((list.files(tmpdir, pattern=".shp"))) 
+#### Read World Shapefile ####
 
 #reads the shapefile, puts it into 'world' variable
-world <- readOGR(tmpdir, layer=shpname) 
+world <- readOGR("Spatial Data/TM_WORLD_BORDERS-0.3", layer = "TM_WORLD_BORDERS-0.3") 
 
 # default plotting to check
 ggplot() +
@@ -71,13 +75,16 @@ slotNames(world)
 # Check data fields
 head(world@data)
 
+sort(world@data$ISO3)
 
 #### Read Phoenix Data ####
 
 # Ready the Phoenix cameo counts by type + country dataset
 NYT_c <- read.csv("Processed/Country Year Event Counts/NYT_country_counts.csv")
 
+head(NYT_c)
 
+sort(NYT_c$X)
 #### Merge with NYT_c ####
 
 # Join table to shapefile by country three-letter codes
@@ -88,8 +95,11 @@ class(world_cameo_counts)
 # Check merge successful 
 head(world_cameo_counts@data)
 
-# Write shapefile for ArcMap
-writeOGR(world_cameo_counts, "Processed/NYT_country_counts", "NYT_country_counts", driver = "ESRI Shapefile")
+# # Write shapefile for ArcMap
+# writeOGR(world_cameo_counts, 
+#          "Processed/NYT_country_counts", 
+#          "NYT_country_counts", 
+#          driver = "ESRI Shapefile")
 
 
 
@@ -105,6 +115,26 @@ world_fort <- fortify(world_cameo_counts, region = "id")
 world_cc <- merge(world_fort, world_cameo_counts@data, by = "id")
 
 head(world_cc)
+
+
+
+
+
+
+
+#### Spatial Stats Test ####
+install.packages("GISTools")
+
+
+
+
+n.list <- nb2listw(poly2nb(world_cameo_counts), style = "B", zero.policy = TRUE)
+class(n.list)
+
+test <- world_cameo_counts@data$y2004.1
+test[is.na(test)] <- 0
+
+localmoran(test, n.list, zero.policy = TRUE)
 
 #### Mapping test ####
 
@@ -127,23 +157,3 @@ ggplot(world_cc, aes(x = long, y = lat, group = group, fill = FBIS.Total) )+
 # basic ggplot
 ggplot(world.md, aes(map_id = region)) +
   geom_map(aes(fill = NYT.Total),map = world.md)
-
-
-
-
-
-#### Spatial Stats Test ####
-install.packages("GISTools")
-
-
-
-
-n.list <- nb2listw(poly2nb(world_cameo_counts), style = "B", zero.policy = TRUE)
-class(n.list)
-
-test <- world_cameo_counts@data$y2004.1
-test[is.na(test)] <- 0
-
-localmoran(test, n.list, zero.policy = TRUE)
-
-

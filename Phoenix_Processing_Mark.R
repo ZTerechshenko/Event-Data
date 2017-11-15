@@ -138,7 +138,7 @@ write.csv(SWB_Geo, "Processed/SWB_Geolocated.csv", row.names = FALSE)
 FBIS_Geo <- FBIS %>% filter(!is.na(lat))
 
 # Write as CSV
-write.csv(FBIS_Geo, "Phoenix Processed/FBIS_Geolocated.csv", row.names = FALSE)
+write.csv(FBIS_Geo, "Processed/FBIS_Geolocated.csv", row.names = FALSE)
 
 
 
