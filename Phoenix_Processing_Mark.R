@@ -20,6 +20,10 @@ library(tidyr)
 # Mark's office computer
 setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
 
+# Mark's laptop
+#setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
+
+
 #### Read Datasets ####
 
 NYT <- read.csv(file ="Phoenix/PhoenixNYT_1945-2005.csv") %>% 
@@ -33,8 +37,10 @@ FBIS <- read.csv(file ="Phoenix/PhoenixFBIS_1995-2004.csv") %>%
 
 ##### NYT Country Counts ####
 
+NYT$countryname
+
 # Create table of count per country
-NYT_Countries_Count <- NYT %>%
+NYT_CC <- NYT %>%
   filter(year > 1994 & year < 2005) %>%
   count( countryname, quad_class, year) %>%
   mutate( quad_class = as.character(quad_class)) %>%
@@ -42,26 +48,47 @@ NYT_Countries_Count <- NYT %>%
   unite("quad_class_year", "year", "quad_class", sep = ".")
 
 # Add in row names so we can transpose
-rownames(NYT_Countries_Count) <- NYT_Countries_Count$quad_class_year
+rownames(NYT_CC) <- NYT_CC$quad_class_year
 
 # Delete column
-NYT_Countries_Count$quad_class_year <-  NULL
+NYT_CC$quad_class_year <-  NULL
 
 # Transpose to get countries as rows
-NYT_Countries_Count <- t(NYT_Countries_Count)
+NYT_CC <- t(NYT_CC)
 
 # Rename for mutate, doesn't like numerics
-colnames(NYT_Countries_Count) <- paste0("y", colnames(NYT_Countries_Count))
+colnames(NYT_CC) <- paste0("N.", colnames(NYT_CC))
 
 # Convert back to data frame
-NYT_Countries_Count <-  as.data.frame((NYT_Countries_Count))
+NYT_CC <-  as.data.frame((NYT_CC))
 
-write.csv(NYT_Countries_Count , file = "Processed/Country Year Event Counts/NYT_country_counts.csv")
+# Create Year totals for all event types
+for (year in 1995:2004) {
+  
+  #Create column name
+  col.name <- paste0("N.", year, ".all")
+  
+  # use grepl to get right columns, sum them, put in new column
+  NYT_CC[[col.name]] <- rowSums( NYT_CC[ , colnames(NYT_CC)[ grepl( as.character(year),
+                                                                 colnames(NYT_CC))] ] )
+}
+
+# Add rownames as column for processing
+NYT_CC$ISO3 <- row.names(NYT_CC)
+
+# Check data
+colnames(NYT_CC)
+NYT_CC[1:3, ]
+#NYT_CC$y1995.all<- rowSums(NYT_CC[, colnames(NYT_CC)[grepl("1995", colnames(NYT_CC))] ] )
+
+write.csv(NYT_CC , file = "Processed/Country Year Event Counts/NYT_country_counts.csv")
+
+
 
 ##### SWB Country Counts ####
 
 # Create table of count per country
-SWB_Countries_Count <- SWB %>%
+SWB_CC <- SWB %>%
   filter(year > 1994 & year < 2005) %>%
   count( countryname, quad_class, year) %>%
   mutate( quad_class = as.character(quad_class)) %>%
@@ -69,27 +96,47 @@ SWB_Countries_Count <- SWB %>%
   unite("quad_class_year", "year", "quad_class", sep = ".")
 
 # Add in row names so we can transpose
-rownames(SWB_Countries_Count) <- SWB_Countries_Count$quad_class_year
+rownames(SWB_CC) <- SWB_CC$quad_class_year
 
 # Delete column
-SWB_Countries_Count$quad_class_year <-  NULL
+SWB_CC$quad_class_year <-  NULL
 
 # Transpose to get countries as rows
-SWB_Countries_Count <- t(SWB_Countries_Count)
+SWB_CC <- t(SWB_CC)
 
 # Rename for mutate, doesn't like numerics
-colnames(SWB_Countries_Count) <- paste0("y", colnames(SWB_Countries_Count))
+colnames(SWB_CC) <- paste0("S.", colnames(SWB_CC))
 
 # Convert back to data frame
-SWB_Countries_Count <-  as.data.frame((SWB_Countries_Count))
+SWB_CC <-  as.data.frame((SWB_CC))
 
-write.csv(SWB_Countries_Count , file = "Processed/Country Year Event Counts/SWB_country_counts.csv")
+# Create Year totals for all event types
+for (year in 1995:2004) {
+  
+  #Create column name
+  col.name <- paste0("S.", year, ".all")
+  
+  # use grepl to get right columns (returns t/f), sum them, put in new column
+  SWB_CC[[col.name]] <- rowSums( SWB_CC[ , colnames(SWB_CC)[ grepl( as.character(year),
+                                                                    colnames(SWB_CC))] ] )
+}
+
+# Add rownames as column for processing
+SWB_CC$ISO3 <- row.names(SWB_CC)
+
+# Check data
+colnames(SWB_CC)
+SWB_CC[1:3, ]
+
+# Write data, specific folder
+write.csv(SWB_CC , file = "Processed/Country Year Event Counts/SWB_country_counts.csv")
+
 
 
 ##### FBIS Country Counts ####
 
 # Create table of count per country
-FBIS_Countries_Count <- FBIS %>%
+FBIS_CC <- FBIS %>%
   filter(year > 1994 & year < 2005) %>%
   count( countryname, quad_class, year) %>%
   mutate( quad_class = as.character(quad_class)) %>%
@@ -97,21 +144,102 @@ FBIS_Countries_Count <- FBIS %>%
   unite("quad_class_year", "year", "quad_class", sep = ".")
 
 # Add in row names so we can transpose
-rownames(FBIS_Countries_Count) <- FBIS_Countries_Count$quad_class_year
+rownames(FBIS_CC) <- FBIS_CC$quad_class_year
 
 # Delete column
-FBIS_Countries_Count$quad_class_year <-  NULL
+FBIS_CC$quad_class_year <-  NULL
 
 # Transpose to get countries as rows
-FBIS_Countries_Count <- t(FBIS_Countries_Count)
+FBIS_CC <- t(FBIS_CC)
 
 # Rename for mutate, doesn't like numerics
-colnames(FBIS_Countries_Count) <- paste0("y", colnames(FBIS_Countries_Count))
+colnames(FBIS_CC) <- paste0("F.", colnames(FBIS_CC))
 
 # Convert back to data frame
-FBIS_Countries_Count <-  as.data.frame((FBIS_Countries_Count))
+FBIS_CC <-  as.data.frame((FBIS_CC))
 
-write.csv(FBIS_Countries_Count , file = "Processed/Country Year Event Counts/FBIS_country_counts.csv")
+
+# Create Year totals for all event types
+for (year in 1995:2004) {
+  
+  #Create column name
+  col.name <- paste0("F.", year, ".all")
+  
+  # use grepl to get right columns (returns t/f), sum them, put in new column
+  FBIS_CC[[col.name]] <- rowSums( FBIS_CC[ , colnames(FBIS_CC)[ grepl( as.character(year),
+                                                                    colnames(FBIS_CC))] ] )
+}
+
+# Add rownames as column for processing
+FBIS_CC$ISO3 <- row.names(FBIS_CC)
+
+# Check data
+colnames(FBIS_CC)
+FBIS_CC[1:3, ]
+
+# Write data
+write.csv(FBIS_CC , file = "Processed/Country Year Event Counts/FBIS_country_counts.csv")
+
+#### All Country Counts (merged) ####
+
+# Check count datasets
+head(NYT_CC)
+head(SWB_CC)
+head(FBIS_CC)
+
+# Get all country names in dataset
+ISO3 <- sort(unique(c(rownames(NYT_CC), rownames(SWB_CC), rownames(FBIS_CC) ) ) )
+
+Base <- data.frame(ISO3)
+
+# Full join
+#  all subsets
+Phoenix_CC <- Base %>%
+  full_join(SWB_CC, by = "ISO3") %>%
+  full_join(NYT_CC, by = "ISO3") %>%
+  full_join(FBIS_CC, by = "ISO3")
+
+tail(Phoenix_CC)
+
+# remove all zeros created in join
+Phoenix_CC[is.na(Phoenix_CC)] <- 0
+
+# Add back in country names
+Phoenix_CC$Countries <- Countries
+
+# Create Year totals for all event types
+for (year in 1995:2004) {
+  
+  # Create column name
+  col.name <- paste0("Total.", year, ".all")
+  
+  # Key for grepl search
+  match.year <- paste0(year, ".all")
+  
+  # use grepl to get right columns (returns t/f), sum them, put in new column
+  Phoenix_CC[[col.name]] <- rowSums( Phoenix_CC[ , colnames(Phoenix_CC)[ grepl( match.year,
+                                                                      colnames(Phoenix_CC))] ] )
+}
+
+# Check data
+colnames(Phoenix_CC)
+Phoenix_CC[1:3, ]
+
+
+# Debugging
+# length(Countries)
+# nrow(Phoenix_CC)
+# 
+# tc <- "AFG"
+# 
+# Phoenix_CC[Phoenix_CC$Countries == tc , colnames(Phoenix_CC)[ grepl( "2004.all", colnames(Phoenix_CC))] ]
+# 
+# NYT_CC[NYT_CC$ISO3 == tc  , ]
+# SWB_CC[SWB_CC$ISO3 == tc  , ]
+# FBIS_CC[FBIS_CC$ISO3 == tc  , ]
+
+write.csv(Phoenix_CC, "Processed/Country Year Event Counts/Phoenix_country_counts.csv", row.names =  FALSE)
+
 
 ##############################################
 #### Daily and Geo Counts ####
@@ -256,18 +384,3 @@ write.csv(Phoenix_Count_Wide, "Phoenix Processed/Phoenix_Count_Wide.csv",  row.n
 # Test read
 #Phoenix_Count_Wide_read <- read.csv("Phoenix Processed/Phoenix_Count_Wide.csv")
 
-#### All Per Country and CAMEO ####
-
-# Check count datasets
-head(NYT_Countries_Count)
-head(SWB_Countries_Count)
-head(FBIS_Countries_Count)
-
-# Full joint all subsets
-Phoenix_Count_Cameo <- NYT_Countries_Count %>%
-     full_join(SWB_Countries_Count) %>%
-     full_join(FBIS_Countries_Count)
-
-head(Phoenix_Count_Cameo)
-
-write.csv(Phoenix_Count_Cameo, "Phoenix Processed/Phoenix_Country_Cameo.csv", row.names =  FALSE)

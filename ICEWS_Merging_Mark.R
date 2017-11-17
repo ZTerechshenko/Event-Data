@@ -172,12 +172,86 @@ write.csv(ICEWS_Geo_Select, "C:/Users/mbs278/Desktop/ICEWS/Processed Data/ICEWS_
 # setwd("C:/Users/mbs278/Desktop/ICEWS/Uncompressed")
 #ICEWS_Geo_Select <- read.csv("ICEWS_Geo_Select.csv", stringsAsFactors = FALSE)
 
-#### Create Counts by Day Dataset ####
-ICEWS_count <- count(ICEWS_Geo_Select, Event.Date)
-
-write.csv(ICEWS_count, "ICEWS_count.csv",  row.names=FALSE)
 
 ############################################################
+#### Country Counts ####
+ 
+# Read dataset from CSV
+ICEWS_Geo_Select <- read.csv( "C:/Users/mbs278/Desktop/ICEWS/Processed Data/ICEWS_Geo_Select.csv",  stringsAsFactors = FALSE)
+
+# Pipeline to create Country Counts 
+ICEWS_CC <- ICEWS_Geo_Select %>%
+  
+  # Format date
+  mutate(Event.Date = as.Date(Event.Date)) %>%
+  
+  # Filter to year range overlapped with other datasets
+  filter(Event.Date > "1994-12-31" & Event.Date < "2005-01-01") %>%
+  
+  # Create new column for year
+  mutate(year = format(Event.Date, "%Y"))
+
+# Country Counts
+
+ICEWS_CC <- ICEWS_CC %>%
+  count( countryname, quad_class, year) %>%
+  spread("countryname", "n", fill = 0) %>%
+  unite("quad_class_year", "year", "quad_class", sep = ".")
+
+# Add in row names so we can transpose
+rownames(ICEWS_CC) <- ICEWS_CC$quad_class_year
+
+# Delete column
+ICEWS_CC$quad_class_year <-  NULL
+
+# Transpose to get countries as rows
+ICEWS_CC <- t(ICEWS_CC)
+
+# Rename for mutate, doesn't like numerics
+colnames(ICEWS_CC) <- paste0("F.", colnames(ICEWS_CC))
+
+# Convert back to data frame
+ICEWS_CC <-  as.data.frame((ICEWS_CC))
+
+
+# Create Year totals for all event types
+for (year in 1995:2004) {
+  
+  #Create column name
+  col.name <- paste0("F.", year, ".all")
+  
+  # use grepl to get right columns (returns t/f), sum them, put in new column
+  ICEWS_CC[[col.name]] <- rowSums( ICEWS_CC[ , colnames(ICEWS_CC)[ grepl( as.character(year),
+                                                                       colnames(ICEWS_CC))] ] )
+}
+
+# Create seperate column for ISO3 codes
+ICEWS_CC$ISO3 <- row.names(ICEWS_CC)
+
+# Fix column names to match Phoenix (numeric CAMEO codes)
+names <- colnames(ICEWS_CC)
+names <- gsub("Material conflict", 4, names)
+names <- gsub("Verbal conflict", 3, names)
+names <- gsub("Material cooperation", 2, names)
+names <- gsub("Verbal cooperation", 1, names)
+names <- gsub("Neutral", 0, names)
+
+# Correct names to column names
+colnames(ICEWS_CC) <- names
+
+# Check data
+colnames(ICEWS_CC)
+ICEWS_CC[1:3, ]
+
+# Write data
+write.csv(ICEWS_CC , file = "Processed/Country Year Event Counts/ICEWS_country_counts.csv")
+
+# Debugging
+tc <- "ZAF"
+
+ICEWS_CC[ICEWS_CC$ISO3 == tc , colnames(ICEWS_CC)[ grepl( "2004", colnames(ICEWS_CC))] ]
+
+
 
 
 #### Read ICEWS test ####
