@@ -179,7 +179,7 @@ write.csv(ICEWS_Geo_Select, "C:/Users/mbs278/Desktop/ICEWS/Processed Data/ICEWS_
 # Read dataset from CSV
 ICEWS_Geo_Select <- read.csv( "C:/Users/mbs278/Desktop/ICEWS/Processed Data/ICEWS_Geo_Select.csv",  stringsAsFactors = FALSE)
 
-# Pipeline to create Country Counts 
+# Pipeline to process raw data
 ICEWS_CC <- ICEWS_Geo_Select %>%
   
   # Format date
