@@ -209,6 +209,8 @@ for (i in 1:length(countries)){
   # Assign by index, sets up everything else
   country <- countries[i]
   
+  cat( c("Starting", country, "loop"))
+  
   # get full name using countrycode package
   long.name <- countrycode(country, "iso3c", "country.name")
   
@@ -240,7 +242,7 @@ for (i in 1:length(countries)){
   
   ##### Map set 1: Events by Type #####
     # Mapping all events by type per dataset per country
-  
+  cat("Map set 1")
   # Set title suffix
   end.title <- "Events, 1995-2004"
   
@@ -432,7 +434,7 @@ for (i in 1:length(countries)){
   
   
   ##### Map set 2, Events by Source #####
-
+  cat("Map set 2")
   # Set attributes for this map
   p.alpha = .2
   p.size = .5
@@ -508,7 +510,7 @@ for (i in 1:length(countries)){
   ####
   
   ##### Map set 3, Mean Centers by Type #####
-  
+  cat("Map set 3")
   # Set attributes for this map
   p.alpha = .2
   p.size = 2
@@ -788,6 +790,6 @@ for (i in 1:length(countries)){
   # Save as png with cairo driver
   ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
   
-  
+  cat(c(country, "complete."))
 }
 
