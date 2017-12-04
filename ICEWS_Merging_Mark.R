@@ -208,7 +208,7 @@ ICEWS_CC$quad_class_year <-  NULL
 ICEWS_CC <- t(ICEWS_CC)
 
 # Rename for mutate, doesn't like numerics
-colnames(ICEWS_CC) <- paste0("F.", colnames(ICEWS_CC))
+colnames(ICEWS_CC) <- paste0("I.", colnames(ICEWS_CC))
 
 # Convert back to data frame
 ICEWS_CC <-  as.data.frame((ICEWS_CC))
@@ -218,7 +218,7 @@ ICEWS_CC <-  as.data.frame((ICEWS_CC))
 for (year in 1995:2004) {
   
   #Create column name
-  col.name <- paste0("F.", year, ".all")
+  col.name <- paste0("I.", year, ".all")
   
   # use grepl to get right columns (returns t/f), sum them, put in new column
   ICEWS_CC[[col.name]] <- rowSums( ICEWS_CC[ , colnames(ICEWS_CC)[ grepl( as.character(year),
