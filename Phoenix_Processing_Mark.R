@@ -8,17 +8,19 @@
 #install.packages("ggplot2")
 #install.packages("dplyr")
 #install.packages("tidyr")
+#install.packages("stringr")
+
 library(ggplot2)
 library(dplyr)
 library(tidyr)
-
+library(stringr)
 #### Set working directory ####
 
 # Mark's home computer
 #setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
 # Mark's office computer
-setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
+#setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
 
 # Mark's laptop
 #setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
@@ -37,7 +39,7 @@ FBIS <- read.csv(file ="Phoenix/PhoenixFBIS_1995-2004.csv") %>%
 
 ##### NYT Country Counts ####
 
-NYT$countryname
+unique(NYT$countryname)
 
 # Create table of count per country
 NYT_CC <- NYT %>%
@@ -75,6 +77,15 @@ for (year in 1995:2004) {
 
 # Add rownames as column for processing
 NYT_CC$ISO3 <- row.names(NYT_CC)
+
+head(NYT_CC)
+
+# Event type totals
+NYT_CC$N.total.0 <- rowSums(NYT_CC[ ,2:11])
+NYT_CC$N.total.1 <- rowSums(NYT_CC[ ,12:21])
+NYT_CC$N.total.2 <- rowSums(NYT_CC[ ,22:31])
+NYT_CC$N.total.3 <- rowSums(NYT_CC[ ,32:41])
+NYT_CC$N.total.4 <- rowSums(NYT_CC[ ,42:51])
 
 # Check data
 colnames(NYT_CC)
@@ -123,6 +134,14 @@ for (year in 1995:2004) {
 
 # Add rownames as column for processing
 SWB_CC$ISO3 <- row.names(SWB_CC)
+
+
+# Event type totals
+SWB_CC$S.total.0 <- rowSums(SWB_CC[ ,2:11])
+SWB_CC$S.total.1 <- rowSums(SWB_CC[ ,12:21])
+SWB_CC$S.total.2 <- rowSums(SWB_CC[ ,22:31])
+SWB_CC$S.total.3 <- rowSums(SWB_CC[ ,32:41])
+SWB_CC$S.total.4 <- rowSums(SWB_CC[ ,42:51])
 
 # Check data
 colnames(SWB_CC)
@@ -177,6 +196,13 @@ FBIS_CC$ISO3 <- row.names(FBIS_CC)
 colnames(FBIS_CC)
 FBIS_CC[1:3, ]
 
+# Event type totals
+FBIS_CC$F.total.0 <- rowSums(FBIS_CC[ ,2:11])
+FBIS_CC$F.total.1 <- rowSums(FBIS_CC[ ,12:21])
+FBIS_CC$F.total.2 <- rowSums(FBIS_CC[ ,22:31])
+FBIS_CC$F.total.3 <- rowSums(FBIS_CC[ ,32:41])
+FBIS_CC$F.total.4 <- rowSums(FBIS_CC[ ,42:51])
+
 # Write data
 write.csv(FBIS_CC , file = "Processed/Country Year Event Counts/FBIS_country_counts.csv")
 
@@ -219,6 +245,22 @@ for (year in 1995:2004) {
   # use grepl to get right columns (returns t/f), sum them, put in new column
   Phoenix_CC[[col.name]] <- rowSums( Phoenix_CC[ , colnames(Phoenix_CC)[ grepl( match.year,
                                                                       colnames(Phoenix_CC))] ] )
+}
+
+colnames(Phoenix_CC)
+i <- 1
+# Loop for event type totals
+for (i in 0:4) {
+  
+  # Create column name
+  col.name <- paste0("Total.", i)
+  
+  # Key for grepl search
+  match.string <- paste0("total.", i)
+  
+  # use grepl to get right columns (returns t/f), sum them, put in new column
+  Phoenix_CC[[col.name]] <- rowSums( Phoenix_CC[ , colnames(Phoenix_CC)[ grepl( match.string,
+                                                                                colnames(Phoenix_CC))] ] )
 }
 
 # Check data

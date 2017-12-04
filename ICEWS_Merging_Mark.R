@@ -177,7 +177,7 @@ write.csv(ICEWS_Geo_Select, "C:/Users/mbs278/Desktop/ICEWS/Processed Data/ICEWS_
 #### Country Counts ####
  
 # Read dataset from CSV
-ICEWS_Geo_Select <- read.csv( "C:/Users/mbs278/Desktop/ICEWS/Processed Data/ICEWS_Geo_Select.csv",  stringsAsFactors = FALSE)
+ICEWS_Geo_Select <- read.csv( "C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project/Processed/ICEWS_Geo_Select.csv",  stringsAsFactors = FALSE)
 
 # Pipeline to process raw data
 ICEWS_CC <- ICEWS_Geo_Select %>%
@@ -243,8 +243,15 @@ colnames(ICEWS_CC) <- names
 colnames(ICEWS_CC)
 ICEWS_CC[1:3, ]
 
+# Event type totals
+ICEWS_CC$I.total.0 <- rowSums(ICEWS_CC[ ,2:11])
+ICEWS_CC$I.total.1 <- rowSums(ICEWS_CC[ ,12:21])
+ICEWS_CC$I.total.2 <- rowSums(ICEWS_CC[ ,22:31])
+ICEWS_CC$I.total.3 <- rowSums(ICEWS_CC[ ,32:41])
+ICEWS_CC$I.total.4 <- rowSums(ICEWS_CC[ ,42:51])
+
 # Write data
-write.csv(ICEWS_CC , file = "Processed/Country Year Event Counts/ICEWS_country_counts.csv")
+write.csv(ICEWS_CC , file = "ICEWS_country_counts.csv")
 
 # Debugging
 tc <- "ZAF"
