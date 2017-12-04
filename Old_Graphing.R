@@ -6,6 +6,10 @@
 # Mark's home computer
 setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
+# Set directory for output
+save_dir <- "C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project/Plots/"
+
+
 #### load packages ####
 
 #install.packages("ggplot2")
@@ -17,7 +21,7 @@ library(tidyr)
 
 #### Read NYT Phoenix ####
 
-Phoenix_Long <- read.csv(file ="Phoenix Processed/Phoenix_Count_Long.csv")
+Phoenix_Long <- read.csv(file ="Processed/Phoenix_Count_Long.csv")
 
 # Convert to proper date format
 Phoenix_Long <- Phoenix_Long %>% mutate(story_date = as.Date(story_date) )
@@ -28,10 +32,13 @@ head(Phoenix_Long)
 ######## Plotting ########  
 #### NYT count, time series ####
 #### 
-title <- "Phoenix_NYT_Events"
-png(paste0("Plots/", title, ".png"), width =  1600, height = 1000, res = 120 )
+title <- "Phoenix NYT Events"
+
+# Put together filename with dir path
+filename <- paste0(save_dir, title,".png")
+
 # line chart
-ggplot(Phoenix_Long[Phoenix_Long$Source == "NYT",], aes(x = story_date, y = all)) +
+current_plot <- ggplot(Phoenix_Long[Phoenix_Long$Source == "NYT",], aes(x = story_date, y = all)) +
   geom_line(alpha = .5, color = "blue") +
   scale_x_date(breaks = seq( as.Date("1945-01-01"), 
                              as.Date("2006-12-31"), 
@@ -44,7 +51,10 @@ ggplot(Phoenix_Long[Phoenix_Long$Source == "NYT",], aes(x = story_date, y = all)
   theme( title = element_text(size = 14, face = "bold"),
          axis.text = element_text(size = 12) )
 
-dev.off()
+current_plot
+
+# Save as png with cairo driver
+ggsave( current_plot, file = filename, width = 8, height = 4, type = "cairo-png", dpi = 300)
 
 ###################
 
