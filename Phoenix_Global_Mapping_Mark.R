@@ -5,10 +5,10 @@
 #### Set working directory ####
 
 # Mark's home computer
-setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
+#setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
 # Mark's office computer
-#setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
+setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
 
 # Mark's laptop
 #setwd("C:/Users/Mark/OneDrive/Documents/502 Project Online/502 Project")
@@ -140,7 +140,8 @@ event_types <- c("Neutral",
                  "Material conflict")
 
 # Set directory for output images
-dir <- "C:/Users/kramp_000/Desktop/Maps/Morans/"
+#dir <- "C:/Users/kramp_000/Desktop/Maps/Morans/"
+dir <- "W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project/Plots/Maps/Morans/"
 
 # Set text size
 cexs <- 2
@@ -270,6 +271,128 @@ for( dataset in 1:length(All_c)){
     
   }
   
+}
+
+#### Phoenix Moran's I ####
+
+# Create temporary spatial polygons dataframe
+tmp_c <- merge(world, Phoenix_c[ , c (1, 207:211)], by.x = "ISO3", by.y = "ISO3")
+
+# Store column names for looping
+col <- colnames(tmp_c@data)
+
+dataset_name <- "Phoenix"
+
+
+# Loop through each event type
+for( i in 0:4){ 
+
+  # Get column with event type i
+  match <- paste0("otal.", as.character(i))
+  
+  # Put column of event counts into separate data frame
+  event <- tmp_c@data[ , col[ grepl( match, col)] ]
+  
+  # Turn NA's into 0
+  event[is.na(event)] <- 0
+  
+  # Store output of moran results
+  moran_output <- localmoran(event, n.list, zero.policy = TRUE)
+  
+  #### Map I values ####
+  
+  # Put together filename with dir path
+  filename <- paste0(dir, "Morans_", event_types[i + 1], "_", dataset_name, ".png")
+  
+  # Create shading for choropleth
+  shading <-  auto.shading( c(moran_output[ , 1], -moran_output[ , 1]), 
+                            n = 7,
+                            cols = brewer.pal(7, "PRGn"))
+  
+  # Open PNG Device
+  png(filename = filename, 
+      type = "cairo",
+      units ="px", 
+      width = 1200, 
+      height = 900)
+  
+  # Create choropleth 
+  choropleth(tmp_c, 
+             moran_output[ , 1], 
+             shading = shading, 
+             border = NA,
+             bg= "gray10")
+  
+  plot(tmp_c,
+       add = TRUE,
+       border = "gray10")
+  
+  choro.legend(-170,0, 
+               shading, 
+               fmt = "%6.2f", 
+               border = "gray10",
+               bg = "gray50",
+               title = "Local Moran's I")
+  
+  title <- paste("Spatial Autocorrelation in", 
+                 dataset_name, 
+                 "for", 
+                 event_types[i + 1],
+                 "Events")
+  
+  title(title, cex.main = cexs)
+  
+  dev.off()
+  
+  #### Map Significance ####
+  
+  # Put together filename with dir path
+  filename <- paste0(dir, "Morans_Sig_",event_types[i + 1], "_", dataset_name, ".png")
+  
+  # Create shading for choropleth
+  shading.2 <-  shading( c(0.01, 0.05, 0.1), 
+                         cols = rev(brewer.pal(4, "PuRd")))
+  
+  # Open PNG Device
+  png(filename = filename, 
+      type = "cairo",
+      units ="px", 
+      width = 1200, 
+      height = 900)
+  
+  plot(tmp_c,
+       bg = "gray10",
+       border = "gray20")
+  
+  # Create choropleth 
+  choropleth(tmp_c, 
+             moran_output[ , 5], 
+             shading = shading.2, 
+             border = NA,
+             #               bg= "gray10",
+             add = TRUE)
+  
+  plot(tmp_c,
+       add = TRUE,
+       border = "gray30")
+  
+  choro.legend(-170,0, 
+               shading.2, 
+               fmt = "%6.2f", 
+               border = "gray10",
+               bg = "gray50",
+               title = "Local p-Value")
+  
+  title <- paste("Spatial Autocorrelation in", 
+                 dataset_name, 
+                 "for", 
+                 event_types[i + 1],
+                 "Events")
+  
+  title(title, cex.main = cexs)
+  
+  dev.off()
+
 }
 
 ###################################

@@ -4,10 +4,10 @@
 #### Set working directory ####
 
 # Mark's home computer
-setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
+#setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
 # Mark's office computer 
-#setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
+setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
 
 # Mark's laptop
 
@@ -198,8 +198,9 @@ source.shape <- c("NYT" = 21,
 # map points by type F
 
 # Set directory for output
-dir <- "C:/Users/kramp_000/Desktop/Maps/maps2/"
-
+#dir <- "C:/Users/kramp_000/Desktop/Maps/maps2/"
+#
+dir <- "W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project/Plots/Maps/Maps/"
 length(countries)
 
 # Start massive loop
@@ -793,3 +794,1164 @@ for (i in 1:length(countries)){
   cat(c(country, "complete."))
 }
 
+
+#### United States ####
+
+#### Loop setup ####
+# Assign by index, sets up everything else
+country <- "USA"
+
+cat( c("Starting", country, "loop"))
+
+# get full name using countrycode package
+long.name <- countrycode(country, "iso3c", "country.name")
+
+# subset dataset by country name
+ICEWS.sub <- ICEWS %>% filter(countryname == country)
+NYT.sub <- NYT %>% filter(countryname == country)
+SWB.sub <- SWB %>% filter(countryname == country)
+FBIS.sub <- FBIS %>% filter(countryname == country)
+
+  
+# Get map by long name
+map <- get_map(location = c(lon = -120,lat = 45),
+               zoom = 3,
+               color = "bw")
+
+# set basemap
+base.map <- ggmap(map, darken = c(0.5, "white"))
+
+base.map
+
+##### Map set 1: Events by Type #####
+# Mapping all events by type per dataset per country
+cat("Map set 1")
+# Set title suffix
+end.title <- "Events, 1995-2004"
+
+#### ICEWS ####
+dataset <-  "ICEWS"
+
+# Plots events by type
+map.print <- base.map + 
+  
+  # Add points, map to variables
+  geom_point(data = ICEWS.sub, 
+             aes(  x = lon,
+                   y = lat, 
+                   color = cameo.root, 
+                   shape = cameo.root,
+                   size = cameo.root,
+                   fill = cameo.root), 
+             alpha = .6) + 
+  
+  # Manual aesthetic mappings
+  scale_size_manual(name = "Event Type", values = event.size) +
+  scale_colour_manual(name = "Event Type", values = event.color) +
+  scale_fill_manual(name = "Event Type", values = event.fill) +
+  scale_shape_manual(name = "Event Type", values = event.shape) +
+  
+  # Legend title, reset alpha to make the symbols legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(dataset, long.name, end.title),
+        x = NULL,
+        y = NULL)  +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Event_Types_", dataset, ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+#### NYT ####
+dataset <-  "NYT"
+
+# Plots events by type
+map.print <- base.map + 
+  
+  # Add points, map to variables
+  geom_point(data = NYT.sub, 
+             aes(  x = lon,
+                   y = lat, 
+                   color = cameo.root, 
+                   shape = cameo.root,
+                   size = cameo.root,
+                   fill = cameo.root), 
+             alpha = .6) + 
+  
+  # Manual aesthetic mappings
+  scale_size_manual(name = "Event Type", values = event.size) +
+  scale_colour_manual(name = "Event Type", values = event.color) +
+  scale_fill_manual(name = "Event Type", values = event.fill) +
+  scale_shape_manual(name = "Event Type", values = event.shape) +
+  
+  # Legend title, reset alpha to make the symbols legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(dataset, long.name, end.title),
+        x = NULL,
+        y = NULL)  +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Event_Types_", dataset, ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+
+#### SWB ####
+
+dataset <-  "SWB"
+
+# Plots events by type
+map.print <- base.map + 
+  
+  # Add points, map to variables
+  geom_point(data = SWB.sub, 
+             aes(  x = lon,
+                   y = lat, 
+                   color = cameo.root, 
+                   shape = cameo.root,
+                   size = cameo.root,
+                   fill = cameo.root), 
+             alpha = .6) + 
+  
+  # Manual aesthetic mappings
+  scale_size_manual(name = "Event Type", values = event.size) +
+  scale_colour_manual(name = "Event Type", values = event.color) +
+  scale_fill_manual(name = "Event Type", values = event.fill) +
+  scale_shape_manual(name = "Event Type", values = event.shape) +
+  
+  # Legend title, reset alpha to make the symbols legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(dataset, long.name, end.title),
+        x = NULL,
+        y = NULL)  +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Event_Types_", dataset, ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+
+#### FBIS ####
+
+dataset <-  "FBIS"
+
+# Plots events by type
+map.print <- base.map + 
+  
+  # Add points, map to variables
+  geom_point(data = FBIS.sub, 
+             aes(  x = lon,
+                   y = lat, 
+                   color = cameo.root, 
+                   shape = cameo.root,
+                   size = cameo.root,
+                   fill = cameo.root), 
+             alpha = .6) + 
+  
+  
+  # Manual aesthetic mappings
+  scale_size_manual(name = "Event Type", values = event.size) +
+  scale_colour_manual(name = "Event Type", values = event.color) +
+  scale_fill_manual(name = "Event Type", values = event.fill) +
+  scale_shape_manual(name = "Event Type", values = event.shape) +
+  
+  # Legend title, reset alpha to make the symbols legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(dataset, long.name, end.title),
+        x = NULL,
+        y = NULL)  +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Event_Types_", dataset, ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+
+
+##### Map set 2, Events by Source #####
+cat("Map set 2")
+# Set attributes for this map
+p.alpha = .2
+p.size = .5
+
+# Plots events by source
+map.print <- base.map + 
+  
+  # ICEWS
+  geom_point(data = ICEWS.sub, 
+             aes(x = lon,
+                 y = lat,
+                 shape = "ICEWS",
+                 color = "ICEWS",
+                 fill = "ICEWS"),
+             alpha = p.alpha,
+             size = p.size) +
+  
+  # Add NYT points with right color
+  geom_point(data = NYT.sub, 
+             aes(x = lon,
+                 y = lat,
+                 shape = "NYT",
+                 color = "NYT",
+                 fill = "NYT"),
+             alpha = p.alpha,
+             size = p.size) +
+  
+  # Add SWB points with right color
+  geom_point(data = SWB.sub, 
+             aes(x = lon,
+                 y = lat,
+                 shape = "SWB",
+                 color = "SWB",
+                 fill = "SWB"),
+             alpha = p.alpha,
+             size = p.size) +
+  
+  # FBIS points with right color
+  geom_point(data = FBIS.sub,
+             aes(x = lon,
+                 y = lat,
+                 shape = "FBIS",
+                 color = "FBIS",
+                 fill = "FBIS"),
+             alpha = p.alpha,
+             size = p.size) +
+  
+  # # Assign source colors and shapes, defined earlier
+  scale_color_manual(name = "Source", values = source.color ) +
+  scale_fill_manual(name = "Source", values = source.color ) +
+  scale_shape_manual(name = "Source", values = source.shape ) +
+  
+  # # This resent the alpha to make the legend legible
+  # guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(long.name, end.title),
+        x = NULL,
+        y = NULL) +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) 
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Events_by_Source", ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+##### Map set 3, Mean Centers by Type #####
+cat("Map set 3")
+# Set attributes for this map
+p.alpha = .2
+p.size = 2
+p.shape = 4
+
+# Manually set shapes for event types, with mean center
+event.shape.2 <- c("Neutral" = 18, 
+                   "Verbal cooperation" = 1,
+                   "Material cooperation"  = 20, 
+                   "Verbal conflict" = 2, 
+                   "Material conflict" = 17,
+                   "All events" = 4)
+
+# Manually set sizes for event types, called in ggmap later
+event.size.2 <- c("Neutral" = 1.5, 
+                  "Verbal cooperation" = 2,
+                  "Material cooperation"  = 1.5, 
+                  "Verbal conflict" = 2, 
+                  "Material conflict" = 1.5,
+                  "All events" = 3)
+
+# Plots events by source
+map.print <- base.map + 
+  
+  #### ICEWS Mean Centers ####
+# All events
+geom_point(data = ICEWS.sub,
+           aes(x = mean(lon),
+               y = mean(lat),
+               shape = "All events",
+               color = "ICEWS",
+               fill = "ICEWS",
+               size = "All events")) +
+  
+  # Neutral events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Neutral"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Neutral",
+                 color = "ICEWS",
+                 fill = "ICEWS",
+                 size = "Neutral")) +
+  
+  # Verbal cooperation events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Verbal cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal cooperation",
+                 color = "ICEWS",
+                 size = "Verbal cooperation"),
+             alpha = p.alpha) +
+  
+  # Verbal conflict events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Verbal conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal conflict",
+                 color = "ICEWS",
+                 size = "Verbal conflict"),
+             alpha = p.alpha) +
+  
+  # Material cooperation events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Material cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material cooperation",
+                 color = "ICEWS",
+                 fill = "ICEWS",
+                 size = "Material cooperation"),
+             alpha = p.alpha) +
+  
+  # Material conflict events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Material conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material conflict",
+                 color = "ICEWS",
+                 fill = "ICEWS",
+                 size = "Material conflict"),
+             alpha = p.alpha) +
+  
+  #### NYT Mean Centers ####
+# All events
+geom_point(data = NYT.sub,
+           aes(x = mean(lon),
+               y = mean(lat),
+               shape = "All events",
+               color = "NYT",
+               fill = "NYT",
+               size = "All events")) +
+  
+  # Neutral events
+  geom_point(data = filter(NYT.sub, cameo.root == "Neutral"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Neutral",
+                 color = "NYT",
+                 fill = "NYT",
+                 size = "Neutral")) +
+  
+  # Verbal cooperation events
+  geom_point(data = filter(NYT.sub, cameo.root == "Verbal cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal cooperation",
+                 color = "NYT",
+                 size = "Verbal cooperation"),
+             alpha = p.alpha) +
+  
+  # Verbal conflict events
+  geom_point(data = filter(NYT.sub, cameo.root == "Verbal conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal conflict",
+                 color = "NYT",
+                 size = "Verbal conflict"),
+             alpha = p.alpha) +
+  
+  # Material cooperation events
+  geom_point(data = filter(NYT.sub, cameo.root == "Material cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material cooperation",
+                 color = "NYT",
+                 fill = "NYT",
+                 size = "Material cooperation"),
+             alpha = p.alpha) +
+  
+  # Material conflict events
+  geom_point(data = filter(NYT.sub, cameo.root == "Material conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material conflict",
+                 color = "NYT",
+                 fill = "NYT",
+                 size = "Material conflict"),
+             alpha = p.alpha) +
+  
+  #### SWB Mean Centers ####
+# All events
+geom_point(data = SWB.sub,
+           aes(x = mean(lon),
+               y = mean(lat),
+               shape = "All events",
+               color = "SWB",
+               fill = "SWB",
+               size = "All events")) +
+  
+  # Neutral events
+  geom_point(data = filter(SWB.sub, cameo.root == "Neutral"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Neutral",
+                 color = "SWB",
+                 fill = "SWB",
+                 size = "Neutral")) +
+  
+  # Verbal cooperation events
+  geom_point(data = filter(SWB.sub, cameo.root == "Verbal cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal cooperation",
+                 color = "SWB",
+                 size = "Verbal cooperation"),
+             alpha = p.alpha) +
+  
+  # Verbal conflict events
+  geom_point(data = filter(SWB.sub, cameo.root == "Verbal conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal conflict",
+                 color = "SWB",
+                 size = "Verbal conflict"),
+             alpha = p.alpha) +
+  
+  # Material cooperation events
+  geom_point(data = filter(SWB.sub, cameo.root == "Material cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material cooperation",
+                 color = "SWB",
+                 fill = "SWB",
+                 size = "Material cooperation"),
+             alpha = p.alpha) +
+  
+  # Material conflict events
+  geom_point(data = filter(SWB.sub, cameo.root == "Material conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material conflict",
+                 color = "SWB",
+                 fill = "SWB",
+                 size = "Material conflict"),
+             alpha = p.alpha) +
+  
+  #### FBIS Mean Centers ####
+# All events
+geom_point(data = FBIS.sub,
+           aes(x = mean(lon),
+               y = mean(lat),
+               shape = "All events",
+               color = "FBIS",
+               fill = "FBIS",
+               size = "All events")) +
+  
+  # Neutral events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Neutral"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Neutral",
+                 color = "FBIS",
+                 fill = "FBIS",
+                 size = "Neutral")) +
+  
+  # Verbal cooperation events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Verbal cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal cooperation",
+                 color = "FBIS",
+                 size = "Verbal cooperation"),
+             alpha = p.alpha) +
+  
+  # Verbal conflict events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Verbal conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal conflict",
+                 color = "FBIS",
+                 size = "Verbal conflict"),
+             alpha = p.alpha) +
+  
+  # Material cooperation events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Material cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material cooperation",
+                 color = "FBIS",
+                 fill = "FBIS",
+                 size = "Material cooperation"),
+             alpha = p.alpha) +
+  
+  # Material conflict events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Material conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material conflict",
+                 color = "FBIS",
+                 fill = "FBIS",
+                 size = "Material conflict"),
+             alpha = p.alpha) +
+  #### Titles and Scales ####
+
+# Assign source colors and shapes, defined earlier
+scale_color_manual(name = "Source", values = source.color) +
+  scale_fill_manual(name = "Source", values = source.color) +
+  scale_shape_manual(name = "Event Type", values = event.shape.2 ) +
+  scale_size_manual(name = "Event Type", values = event.size.2) +
+  
+  # # This resent the alpha to make the legend legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(long.name, "Mean Centers of", end.title),
+        x = NULL,
+        y = NULL) +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) 
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Mean_Center_Type", ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+cat(c(country, "complete."))
+
+
+#### Russian Federation ####
+
+#### Loop setup ####
+# Assign by index, sets up everything else
+country <- "RUS"
+
+cat( c("Starting", country, "loop"))
+
+# get full name using countrycode package
+long.name <- countrycode(country, "iso3c", "country.name")
+
+# subset dataset by country name
+ICEWS.sub <- ICEWS %>% filter(countryname == country)
+NYT.sub <- NYT %>% filter(countryname == country)
+SWB.sub <- SWB %>% filter(countryname == country)
+FBIS.sub <- FBIS %>% filter(countryname == country)
+
+
+# Get map by long name
+map <- get_map(location = c(lon = 82,lat = 55),
+               zoom = 3,
+               color = "bw")
+
+# set basemap
+base.map <- ggmap(map, darken = c(0.5, "white"))
+
+base.map
+
+##### Map set 1: Events by Type #####
+# Mapping all events by type per dataset per country
+cat("Map set 1")
+# Set title suffix
+end.title <- "Events, 1995-2004"
+
+#### ICEWS ####
+dataset <-  "ICEWS"
+
+# Plots events by type
+map.print <- base.map + 
+  
+  # Add points, map to variables
+  geom_point(data = ICEWS.sub, 
+             aes(  x = lon,
+                   y = lat, 
+                   color = cameo.root, 
+                   shape = cameo.root,
+                   size = cameo.root,
+                   fill = cameo.root), 
+             alpha = .6) + 
+  
+  # Manual aesthetic mappings
+  scale_size_manual(name = "Event Type", values = event.size) +
+  scale_colour_manual(name = "Event Type", values = event.color) +
+  scale_fill_manual(name = "Event Type", values = event.fill) +
+  scale_shape_manual(name = "Event Type", values = event.shape) +
+  
+  # Legend title, reset alpha to make the symbols legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(dataset, long.name, end.title),
+        x = NULL,
+        y = NULL)  +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Event_Types_", dataset, ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+#### NYT ####
+dataset <-  "NYT"
+
+# Plots events by type
+map.print <- base.map + 
+  
+  # Add points, map to variables
+  geom_point(data = NYT.sub, 
+             aes(  x = lon,
+                   y = lat, 
+                   color = cameo.root, 
+                   shape = cameo.root,
+                   size = cameo.root,
+                   fill = cameo.root), 
+             alpha = .6) + 
+  
+  # Manual aesthetic mappings
+  scale_size_manual(name = "Event Type", values = event.size) +
+  scale_colour_manual(name = "Event Type", values = event.color) +
+  scale_fill_manual(name = "Event Type", values = event.fill) +
+  scale_shape_manual(name = "Event Type", values = event.shape) +
+  
+  # Legend title, reset alpha to make the symbols legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(dataset, long.name, end.title),
+        x = NULL,
+        y = NULL)  +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Event_Types_", dataset, ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+
+#### SWB ####
+
+dataset <-  "SWB"
+
+# Plots events by type
+map.print <- base.map + 
+  
+  # Add points, map to variables
+  geom_point(data = SWB.sub, 
+             aes(  x = lon,
+                   y = lat, 
+                   color = cameo.root, 
+                   shape = cameo.root,
+                   size = cameo.root,
+                   fill = cameo.root), 
+             alpha = .6) + 
+  
+  # Manual aesthetic mappings
+  scale_size_manual(name = "Event Type", values = event.size) +
+  scale_colour_manual(name = "Event Type", values = event.color) +
+  scale_fill_manual(name = "Event Type", values = event.fill) +
+  scale_shape_manual(name = "Event Type", values = event.shape) +
+  
+  # Legend title, reset alpha to make the symbols legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(dataset, long.name, end.title),
+        x = NULL,
+        y = NULL)  +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Event_Types_", dataset, ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+
+#### FBIS ####
+
+dataset <-  "FBIS"
+
+# Plots events by type
+map.print <- base.map + 
+  
+  # Add points, map to variables
+  geom_point(data = FBIS.sub, 
+             aes(  x = lon,
+                   y = lat, 
+                   color = cameo.root, 
+                   shape = cameo.root,
+                   size = cameo.root,
+                   fill = cameo.root), 
+             alpha = .6) + 
+  
+  
+  # Manual aesthetic mappings
+  scale_size_manual(name = "Event Type", values = event.size) +
+  scale_colour_manual(name = "Event Type", values = event.color) +
+  scale_fill_manual(name = "Event Type", values = event.fill) +
+  scale_shape_manual(name = "Event Type", values = event.shape) +
+  
+  # Legend title, reset alpha to make the symbols legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(dataset, long.name, end.title),
+        x = NULL,
+        y = NULL)  +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Event_Types_", dataset, ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+
+
+##### Map set 2, Events by Source #####
+cat("Map set 2")
+# Set attributes for this map
+p.alpha = .2
+p.size = .5
+
+# Plots events by source
+map.print <- base.map + 
+  
+  # ICEWS
+  geom_point(data = ICEWS.sub, 
+             aes(x = lon,
+                 y = lat,
+                 shape = "ICEWS",
+                 color = "ICEWS",
+                 fill = "ICEWS"),
+             alpha = p.alpha,
+             size = p.size) +
+  
+  # Add NYT points with right color
+  geom_point(data = NYT.sub, 
+             aes(x = lon,
+                 y = lat,
+                 shape = "NYT",
+                 color = "NYT",
+                 fill = "NYT"),
+             alpha = p.alpha,
+             size = p.size) +
+  
+  # Add SWB points with right color
+  geom_point(data = SWB.sub, 
+             aes(x = lon,
+                 y = lat,
+                 shape = "SWB",
+                 color = "SWB",
+                 fill = "SWB"),
+             alpha = p.alpha,
+             size = p.size) +
+  
+  # FBIS points with right color
+  geom_point(data = FBIS.sub,
+             aes(x = lon,
+                 y = lat,
+                 shape = "FBIS",
+                 color = "FBIS",
+                 fill = "FBIS"),
+             alpha = p.alpha,
+             size = p.size) +
+  
+  # # Assign source colors and shapes, defined earlier
+  scale_color_manual(name = "Source", values = source.color ) +
+  scale_fill_manual(name = "Source", values = source.color ) +
+  scale_shape_manual(name = "Source", values = source.shape ) +
+  
+  # # This resent the alpha to make the legend legible
+  # guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(long.name, end.title),
+        x = NULL,
+        y = NULL) +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) 
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Events_by_Source", ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+####
+
+##### Map set 3, Mean Centers by Type #####
+cat("Map set 3")
+# Set attributes for this map
+p.alpha = .2
+p.size = 2
+p.shape = 4
+
+# Manually set shapes for event types, with mean center
+event.shape.2 <- c("Neutral" = 18, 
+                   "Verbal cooperation" = 1,
+                   "Material cooperation"  = 20, 
+                   "Verbal conflict" = 2, 
+                   "Material conflict" = 17,
+                   "All events" = 4)
+
+# Manually set sizes for event types, called in ggmap later
+event.size.2 <- c("Neutral" = 1.5, 
+                  "Verbal cooperation" = 2,
+                  "Material cooperation"  = 1.5, 
+                  "Verbal conflict" = 2, 
+                  "Material conflict" = 1.5,
+                  "All events" = 3)
+
+# Plots events by source
+map.print <- base.map + 
+  
+  #### ICEWS Mean Centers ####
+# All events
+geom_point(data = ICEWS.sub,
+           aes(x = mean(lon),
+               y = mean(lat),
+               shape = "All events",
+               color = "ICEWS",
+               fill = "ICEWS",
+               size = "All events")) +
+  
+  # Neutral events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Neutral"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Neutral",
+                 color = "ICEWS",
+                 fill = "ICEWS",
+                 size = "Neutral")) +
+  
+  # Verbal cooperation events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Verbal cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal cooperation",
+                 color = "ICEWS",
+                 size = "Verbal cooperation"),
+             alpha = p.alpha) +
+  
+  # Verbal conflict events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Verbal conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal conflict",
+                 color = "ICEWS",
+                 size = "Verbal conflict"),
+             alpha = p.alpha) +
+  
+  # Material cooperation events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Material cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material cooperation",
+                 color = "ICEWS",
+                 fill = "ICEWS",
+                 size = "Material cooperation"),
+             alpha = p.alpha) +
+  
+  # Material conflict events
+  geom_point(data = filter(ICEWS.sub, cameo.root == "Material conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material conflict",
+                 color = "ICEWS",
+                 fill = "ICEWS",
+                 size = "Material conflict"),
+             alpha = p.alpha) +
+  
+  #### NYT Mean Centers ####
+# All events
+geom_point(data = NYT.sub,
+           aes(x = mean(lon),
+               y = mean(lat),
+               shape = "All events",
+               color = "NYT",
+               fill = "NYT",
+               size = "All events")) +
+  
+  # Neutral events
+  geom_point(data = filter(NYT.sub, cameo.root == "Neutral"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Neutral",
+                 color = "NYT",
+                 fill = "NYT",
+                 size = "Neutral")) +
+  
+  # Verbal cooperation events
+  geom_point(data = filter(NYT.sub, cameo.root == "Verbal cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal cooperation",
+                 color = "NYT",
+                 size = "Verbal cooperation"),
+             alpha = p.alpha) +
+  
+  # Verbal conflict events
+  geom_point(data = filter(NYT.sub, cameo.root == "Verbal conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal conflict",
+                 color = "NYT",
+                 size = "Verbal conflict"),
+             alpha = p.alpha) +
+  
+  # Material cooperation events
+  geom_point(data = filter(NYT.sub, cameo.root == "Material cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material cooperation",
+                 color = "NYT",
+                 fill = "NYT",
+                 size = "Material cooperation"),
+             alpha = p.alpha) +
+  
+  # Material conflict events
+  geom_point(data = filter(NYT.sub, cameo.root == "Material conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material conflict",
+                 color = "NYT",
+                 fill = "NYT",
+                 size = "Material conflict"),
+             alpha = p.alpha) +
+  
+  #### SWB Mean Centers ####
+# All events
+geom_point(data = SWB.sub,
+           aes(x = mean(lon),
+               y = mean(lat),
+               shape = "All events",
+               color = "SWB",
+               fill = "SWB",
+               size = "All events")) +
+  
+  # Neutral events
+  geom_point(data = filter(SWB.sub, cameo.root == "Neutral"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Neutral",
+                 color = "SWB",
+                 fill = "SWB",
+                 size = "Neutral")) +
+  
+  # Verbal cooperation events
+  geom_point(data = filter(SWB.sub, cameo.root == "Verbal cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal cooperation",
+                 color = "SWB",
+                 size = "Verbal cooperation"),
+             alpha = p.alpha) +
+  
+  # Verbal conflict events
+  geom_point(data = filter(SWB.sub, cameo.root == "Verbal conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal conflict",
+                 color = "SWB",
+                 size = "Verbal conflict"),
+             alpha = p.alpha) +
+  
+  # Material cooperation events
+  geom_point(data = filter(SWB.sub, cameo.root == "Material cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material cooperation",
+                 color = "SWB",
+                 fill = "SWB",
+                 size = "Material cooperation"),
+             alpha = p.alpha) +
+  
+  # Material conflict events
+  geom_point(data = filter(SWB.sub, cameo.root == "Material conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material conflict",
+                 color = "SWB",
+                 fill = "SWB",
+                 size = "Material conflict"),
+             alpha = p.alpha) +
+  
+  #### FBIS Mean Centers ####
+# All events
+geom_point(data = FBIS.sub,
+           aes(x = mean(lon),
+               y = mean(lat),
+               shape = "All events",
+               color = "FBIS",
+               fill = "FBIS",
+               size = "All events")) +
+  
+  # Neutral events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Neutral"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Neutral",
+                 color = "FBIS",
+                 fill = "FBIS",
+                 size = "Neutral")) +
+  
+  # Verbal cooperation events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Verbal cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal cooperation",
+                 color = "FBIS",
+                 size = "Verbal cooperation"),
+             alpha = p.alpha) +
+  
+  # Verbal conflict events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Verbal conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Verbal conflict",
+                 color = "FBIS",
+                 size = "Verbal conflict"),
+             alpha = p.alpha) +
+  
+  # Material cooperation events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Material cooperation"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material cooperation",
+                 color = "FBIS",
+                 fill = "FBIS",
+                 size = "Material cooperation"),
+             alpha = p.alpha) +
+  
+  # Material conflict events
+  geom_point(data = filter(FBIS.sub, cameo.root == "Material conflict"), 
+             aes(x = mean(lon),
+                 y = mean(lat),
+                 shape = "Material conflict",
+                 color = "FBIS",
+                 fill = "FBIS",
+                 size = "Material conflict"),
+             alpha = p.alpha) +
+  #### Titles and Scales ####
+
+# Assign source colors and shapes, defined earlier
+scale_color_manual(name = "Source", values = source.color) +
+  scale_fill_manual(name = "Source", values = source.color) +
+  scale_shape_manual(name = "Event Type", values = event.shape.2 ) +
+  scale_size_manual(name = "Event Type", values = event.size.2) +
+  
+  # # This resent the alpha to make the legend legible
+  guides(color = guide_legend(override.aes = list(alpha = 1))) +
+  
+  # Add labels by combining the long.name with dataset title
+  labs( title = paste(long.name, "Mean Centers of", end.title),
+        x = NULL,
+        y = NULL) +
+  
+  # Mess with theme for readability, taking away axis labels
+  theme(title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) 
+
+# Put together filename with dir path
+filename <- paste0(dir, country, "_Mean_Center_Type", ".png")
+
+# Save as png with cairo driver
+ggsave(map.print, file = filename, width = 8, height = 6, type = "cairo-png", dpi = 300)
+
+cat(c(country, "complete."))
