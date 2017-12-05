@@ -5,7 +5,7 @@
 #### Set working directory ####
 
 # Mark's home computer
-setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
+#setwd("C:/Users/kramp_000/SkyDrive/Documents/502 Project Online/502 Project")
 
 # Mark's office computer 
 setwd("W:/Mark OneDrive/OneDrive/Documents/502 Project Online/502 Project")
